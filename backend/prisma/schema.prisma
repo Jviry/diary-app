@@ -1,0 +1,77 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String
+  createdAt DateTime @default(now())
+
+  sentLetters     Letter[] @relation("SentLetters")
+  receivedLetters Letter[] @relation("ReceivedLetters")
+  sentPings       Ping[]   @relation("SentPings")
+  receivedPings   Ping[]   @relation("ReceivedPings")
+}
+
+model Letter {
+  id        String   @id @default(uuid())
+  title     String
+  content   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  fromUserId String
+  toUserId   String
+  fromUser   User   @relation("SentLetters", fields: [fromUserId], references: [id])
+  toUser     User   @relation("ReceivedLetters", fields: [toUserId], references: [id])
+
+  images LetterImage[]
+  song   LetterSong?
+}
+
+model LetterImage {
+  id        String   @id @default(uuid())
+  s3Key     String
+  createdAt DateTime @default(now())
+
+  letterId String
+  letter   Letter @relation(fields: [letterId], references: [id])
+}
+
+model LetterSong {
+  id             String @id @default(uuid())
+  spotifyTrackId String
+  songName       String
+  artist         String
+  albumArtUrl    String
+
+  letterId String @unique
+  letter   Letter @relation(fields: [letterId], references: [id])
+}
+
+model Ping {
+  id             String   @id @default(uuid())
+  note           String?
+  spotifyTrackId String
+  songName       String
+  artist         String
+  albumArtUrl    String
+  createdAt      DateTime @default(now())
+
+  fromUserId String
+  toUserId   String
+  fromUser   User   @relation("SentPings", fields: [fromUserId], references: [id])
+  toUser     User   @relation("ReceivedPings", fields: [toUserId], references: [id])
+}
