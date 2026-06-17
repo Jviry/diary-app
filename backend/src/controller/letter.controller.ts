@@ -1,10 +1,10 @@
 import { Router } from "express";
-import { prisma } from "../config/prisma";
-import type { AuthRequest } from "../common/middleware/auth.middleware";
+import { prisma } from "../config/prisma.js";
+import type { AuthRequest } from "../common/middleware/auth.middleware.js";
 import type { Response, NextFunction } from "express";
-import { LetterUsecase } from "../usecase/letter.usecase";
-import { LetterRepository } from "../repository/letter.repository";
-import { authenticate } from "../common/middleware/auth.middleware";
+import { LetterUsecase } from "../usecase/letter.usecase.js";
+import { LetterRepository } from "../repository/letter.repository.js";
+import { authenticate } from "../common/middleware/auth.middleware.js";
 import multer from "multer";
 
 const router = Router();

@@ -1,7 +1,7 @@
-import { DomainError } from '../common/error/domain.error';
-import type { Letter } from '../generated/prisma/client';
-import type { LetterInput } from '../models/letter.types';
-import type { LetterRepository } from '../repository/letter.repository';
+import { DomainError } from '../common/error/domain.error.js';
+import type { Letter } from '../generated/prisma/client.js';
+import type { LetterInput } from '../models/letter.types.js';
+import type { LetterRepository } from '../repository/letter.repository.js';
 
 export class LetterUsecase {
   constructor(private repo: LetterRepository) { }

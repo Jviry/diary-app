@@ -1,5 +1,5 @@
-import type { PrismaClient } from "../generated/prisma/client";
-import type { LetterInput } from "../models/letter.types";
+import type { PrismaClient } from "../generated/prisma/client.js";
+import type { LetterInput } from "../models/letter.types.js";
 
 export class LetterRepository {
   constructor(private prisma: PrismaClient) { }

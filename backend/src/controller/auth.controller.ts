@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { prisma } from "../config/prisma";
-import { UserRepository } from "../repository/user.repository";
-import { UserUsecase } from "../usecase/user.usecase";
+import { prisma } from "../config/prisma.js";
+import { UserRepository } from "../repository/user.repository.js";
+import { UserUsecase } from "../usecase/user.usecase.js";
 import type { Request, Response, NextFunction } from 'express';
 
 const router = Router();

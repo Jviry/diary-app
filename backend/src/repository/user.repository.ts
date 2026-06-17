@@ -1,5 +1,5 @@
-import type { PrismaClient } from '../generated/prisma/client';
-import type { RegisterInput } from '../models/user.types';
+import type { PrismaClient } from '../generated/prisma/client.js';
+import type { RegisterInput } from '../models/user.types.js';
 
 export class UserRepository {
   constructor(private prisma: PrismaClient) { }

@@ -1,8 +1,8 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { DomainError } from '../common/error/domain.error';
-import type { UserRepository } from '../repository/user.repository';
-import type { LoginInput, RegisterInput, AuthResponse } from '../models/user.types';
+import { DomainError } from '../common/error/domain.error.js';
+import type { UserRepository } from '../repository/user.repository.js';
+import type { LoginInput, RegisterInput, AuthResponse } from '../models/user.types.js';
 
 export class UserUsecase {
   constructor(private repo: UserRepository) { }
