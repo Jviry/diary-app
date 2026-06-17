@@ -14,7 +14,7 @@ router.post('/register', async (req: Request, res: Response, next: NextFunction)
     const result = await uc.register(req.body);
     res.status(201).json({
       message: 'User created',
-      user: result
+      ...result
     });
   } catch (error) {
     next(error);
@@ -26,7 +26,7 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
     const result = await uc.login(req.body);
     res.status(200).json({
       message: 'User logged in',
-      user: result
+      ...result
     });
   } catch (error) {
     next(error);

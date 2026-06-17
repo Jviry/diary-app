@@ -6,11 +6,12 @@ import { LetterUsecase } from "../usecase/letter.usecase.js";
 import { LetterRepository } from "../repository/letter.repository.js";
 import { authenticate } from "../common/middleware/auth.middleware.js";
 import multer from "multer";
+import { supabase } from "../config/supabase.js";
 
 const router = Router();
 
 const letterRepo = new LetterRepository(prisma);
-const uc = new LetterUsecase(letterRepo);
+const uc = new LetterUsecase(letterRepo, supabase);
 const upload = multer({ storage: multer.memoryStorage() })
 
 router.get('/sent', authenticate, async (req: AuthRequest, res: Response, next: NextFunction) => {
