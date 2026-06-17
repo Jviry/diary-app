@@ -2,16 +2,26 @@ import { DomainError } from '../common/error/domain.error.js';
 import type { Letter } from '../generated/prisma/client.js';
 import type { LetterInput } from '../models/letter.types.js';
 import type { LetterRepository } from '../repository/letter.repository.js';
+import type { SupabaseClient } from '@supabase/supabase-js';
 
 export class LetterUsecase {
-  constructor(private repo: LetterRepository) { }
+  constructor(private repo: LetterRepository, private storage: SupabaseClient) { }
 
   async create(input: LetterInput, fromUserId: string, files?: Express.Multer.File[]): Promise<Letter> {
     const letter = await this.repo.create(input, fromUserId);
 
     if (files && files.length > 0) {
       for (const file of files) {
-        const s3key = `letters/${letter.id}/${file.originalname}`;
+        const s3key = `letters/${letter.id}/${Date.now()}-${file.originalname}`;
+
+        const { error } = await this.storage.storage
+          .from('letter-images')
+          .upload(s3key, file.buffer, {
+            contentType: file.mimetype
+          });
+
+        if (error) throw new DomainError('Failed to upload image');
+
         await this.repo.addImage(letter.id, s3key);
       }
     }
