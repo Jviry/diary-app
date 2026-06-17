@@ -15,7 +15,7 @@ export class UserRepository {
   async create(input: RegisterInput) {
     return this.prisma.user.create({
       data: input
-    })
+    });
   }
 }
 

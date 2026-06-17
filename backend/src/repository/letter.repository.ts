@@ -1,5 +1,6 @@
 import type { PrismaClient } from "../generated/prisma/client.js";
 import type { LetterInput } from "../models/letter.types.js";
+import { SongOut } from "../models/song.types.js";
 
 export class LetterRepository {
   constructor(private prisma: PrismaClient) { }
@@ -23,14 +24,6 @@ export class LetterRepository {
         title: input.title,
         content: input.content,
         fromUserId,
-        song: input.spotifyTrackId ? {
-          create: {
-            spotifyTrackId: input.spotifyTrackId,
-            songName: input.songName!,
-            artist: input.artist!,
-            albumArtUrl: input.albumArtUrl!,
-          }
-        } : undefined
       },
     });
   }
@@ -40,6 +33,19 @@ export class LetterRepository {
       data: {
         letterId,
         s3Key
+      }
+    })
+  }
+
+  async addSong(letterId: string, song: SongOut) {
+    return this.prisma.letterSong.create({
+      data: {
+        letterId,
+        spotifyTrackId: song.spotifyTrackId,
+        songName: song.songName,
+        artist: song.artist,
+        albumArtUrl: song.albumArtUrl,
+        previewUrl: song.previewUrl
       }
     })
   }
