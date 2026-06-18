@@ -2,36 +2,52 @@ org: jviry
 app: diary-app  # Choose your app name
 service: diary-app
 
+build:
+  esbuild:
+    bundle: true
+    minify: true
+    sourcemap: false
+    target: node20
+    platform: node
+    format: esm
+    banner:
+      js: "import { createRequire } from 'module'; const require = createRequire(import.meta.url);"
+    external:
+      - serverless-http
+      - '@prisma/client'
+      - bcrypt
+
 provider:
   name: aws
   runtime: nodejs20.x
   region: ap-southeast-1
+  environment:
+    DATABASE_URL: ${env:DATABASE_URL}
+    JWT_SECRET: ${env:JWT_SECRET}
+    SPOTIFY_CLIENT_ID: ${env:SPOTIFY_CLIENT_ID}
+    SPOTIFY_CLIENT_SECRET: ${env:SPOTIFY_CLIENT_SECRET}
+    SUPABASE_URL: ${env:SUPABASE_URL}
+    SUPABASE_ANON_KEY: ${env:SUPABASE_ANON_KEY}
 
-build:
-  esbuild:
-    bundle: false
 
 package:
   individually: true
   patterns:
-    - 'dist/**'
-    # Drop alternative operating system binaries to save space
-    - '!node_modules/.prisma/client/query-engine-*'
-    - 'node_modules/.prisma/client/query-engine-rhel-*'
-    - '!node_modules/prisma/query-engine-*'
-    - '!node_modules/prisma/**'
-    - '!**/*.map'
+    - src/generated/prisma/**
+    - '!src/generated/prisma/query-engine-*'
+    - src/generated/prisma/query-engine-rhel-*
+    - node_modules/bcrypt/**
 
 functions:
   auth:
-    handler: dist/handlers/auth.handler
+    handler: src/handlers/auth.handler
     events:
       - httpApi:
           path: /auth/{proxy+}
           method: ANY
 
   letters:
-    handler: dist/handlers/letters.handler
+    handler: src/handlers/letters.handler
     events:
       - httpApi:
           path: /letters/{proxy+}
