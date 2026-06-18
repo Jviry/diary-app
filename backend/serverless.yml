@@ -1,9 +1,26 @@
+org: jviry
+app: diary-app  # Choose your app name
 service: diary-app
 
 provider:
   name: aws
   runtime: nodejs20.x
   region: ap-southeast-1
+
+build:
+  esbuild:
+    bundle: false
+
+package:
+  individually: true
+  patterns:
+    - 'dist/**'
+    # Drop alternative operating system binaries to save space
+    - '!node_modules/.prisma/client/query-engine-*'
+    - 'node_modules/.prisma/client/query-engine-rhel-*'
+    - '!node_modules/prisma/query-engine-*'
+    - '!node_modules/prisma/**'
+    - '!**/*.map'
 
 functions:
   auth:
@@ -19,4 +36,3 @@ functions:
       - httpApi:
           path: /letters/{proxy+}
           method: ANY
-

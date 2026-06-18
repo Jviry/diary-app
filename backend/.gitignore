@@ -1,4 +1,10 @@
 node_modules
 .env
 
+dist/
+.serverless/
+
+prisma.config.js
+prisma.config.js.map
+
 /src/generated/prisma
