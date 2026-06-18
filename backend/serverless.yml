@@ -24,14 +24,14 @@ package:
 
 functions:
   auth:
-    handler: dist/handlers/auth.handler.handler
+    handler: dist/handlers/auth.handler
     events:
       - httpApi:
           path: /auth/{proxy+}
           method: ANY
 
   letters:
-    handler: dist/handlers/letters.handler.handler
+    handler: dist/handlers/letters.handler
     events:
       - httpApi:
           path: /letters/{proxy+}
