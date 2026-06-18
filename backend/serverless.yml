@@ -1,0 +1,22 @@
+service: diary-app
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+  region: ap-southeast-1
+
+functions:
+  auth:
+    handler: dist/handlers/auth.handler.handler
+    events:
+      - httpApi:
+          path: /auth/{proxy+}
+          method: ANY
+
+  letters:
+    handler: dist/handlers/letters.handler.handler
+    events:
+      - httpApi:
+          path: /letters/{proxy+}
+          method: ANY
+
