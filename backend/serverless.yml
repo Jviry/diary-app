@@ -52,3 +52,10 @@ functions:
       - httpApi:
           path: /letters/{proxy+}
           method: ANY
+
+  pings:
+    handler: src/handlers/pings.handler
+    events:
+      - httpApi:
+          path: /pings/{proxy+}
+          method: ANY
