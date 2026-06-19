@@ -1,5 +1,5 @@
 import type { PrismaClient } from "../generated/prisma/client.js";
-import type { LetterInput } from "../models/letter.types.js";
+import type { CreateLetterData } from "../models/letter.types.js";
 import { SongOut } from "../models/song.types.js";
 
 export class LetterRepository {
@@ -17,15 +17,8 @@ export class LetterRepository {
     return this.prisma.letter.findMany({ where: { toUserId: user_id } });
   }
 
-  async create(input: LetterInput, fromUserId: string) {
-    return this.prisma.letter.create({
-      data: {
-        toUserId: input.toUserId,
-        title: input.title,
-        content: input.content,
-        fromUserId,
-      },
-    });
+  async create(input: CreateLetterData) {
+    return this.prisma.letter.create({ data: input });
   }
 
   async addImage(letterId: string, s3Key: string) {
