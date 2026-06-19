@@ -1,6 +1,15 @@
 import { createClient } from '@supabase/supabase-js';
+import ws from 'ws';
 
 const supabaseUrl = process.env.SUPABASE_URL!;
 const supabaseKey = process.env.SUPABASE_ANON_KEY!;
 
-export const supabase = createClient(supabaseUrl, supabaseKey);
+export const supabase = createClient(supabaseUrl, supabaseKey, {
+  realtime: {
+    transport: ws as unknown as new (
+      address: string | URL,
+      subprotocols?: string | string[] | undefined
+    ) => WebSocket,
+  },
+});
+
