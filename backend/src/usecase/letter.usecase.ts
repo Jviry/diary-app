@@ -14,7 +14,7 @@ export class LetterUsecase {
       trackData = await getSpotifyTrack(input.spotifyUrl);
     }
 
-    const letter = await this.repo.create(input, fromUserId);
+    const letter = await this.repo.create({ ...input, fromUserId });
 
     if (trackData) {
       await this.repo.addSong(letter.id, trackData);

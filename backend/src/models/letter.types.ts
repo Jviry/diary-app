@@ -5,12 +5,9 @@ export interface LetterInput {
   spotifyUrl?: string
 }
 
-
-export interface PingInput {
+export interface CreateLetterData {
+  fromUserId: string
   toUserId: string
-  note?: string
-  spotifyTrackId: string
-  songName: string
-  artist: string
-  albumArtUrl: string
+  title: string
+  content: string
 }
