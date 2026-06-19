@@ -16,6 +16,8 @@ build:
       - serverless-http
       - '@prisma/client'
       - bcrypt
+      - ws
+
 
 provider:
   name: aws
