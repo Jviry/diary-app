@@ -19,6 +19,6 @@ export class PingUsecase {
   }
 
   async getSent(userId: string): Promise<Ping[]> {
-    return this.repo.findReceived(userId);
+    return this.repo.findSent(userId);
   }
 }
