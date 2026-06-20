@@ -1,12 +1,11 @@
 import type { PrismaClient } from "../generated/prisma/client.js";
 import type { CreateLetterData } from "../models/letter.types.js";
-import { SongOut } from "../models/song.types.js";
 
 export class LetterRepository {
   constructor(private prisma: PrismaClient) { }
 
   async findById(id: string) {
-    return this.prisma.letter.findUnique({ where: { id }, include: { song: true, images: true } });
+    return this.prisma.letter.findUnique({ where: { id }, include: { images: true } });
   }
 
   async findSent(user_id: string) {
@@ -26,19 +25,6 @@ export class LetterRepository {
       data: {
         letterId,
         s3Key
-      }
-    })
-  }
-
-  async addSong(letterId: string, song: SongOut) {
-    return this.prisma.letterSong.create({
-      data: {
-        letterId,
-        spotifyTrackId: song.spotifyTrackId,
-        songName: song.songName,
-        artist: song.artist,
-        albumArtUrl: song.albumArtUrl,
-        previewUrl: song.previewUrl
       }
     })
   }

@@ -56,6 +56,7 @@ router.get('/:id', authenticate, async (req: AuthRequest, res: Response, next: N
 
 router.post('/', authenticate, upload.array('images'), async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
+    console.log('req.userId', req.userId!);
     const result = await uc.create(req.body, req.userId!, req.files as Express.Multer.File[]);
     res.status(201).json({
       message: 'Letter sent successfully',
