@@ -27,7 +27,10 @@ export class LetterUsecase {
           .upload(s3key, file.buffer, {
             contentType: file.mimetype
           });
-
+        if (error) {
+          console.log('Supabase upload error:', error)  // add this
+          throw new DomainError('Failed to upload image')
+        }
         if (error) throw new DomainError('Failed to upload image');
 
         await this.repo.addImage(letter.id, s3key);
