@@ -3,22 +3,20 @@ import type { Letter } from '../generated/prisma/client.js';
 import type { LetterInput } from '../models/letter.types.js';
 import type { LetterRepository } from '../repository/letter.repository.js';
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { getSpotifyTrack } from '../utils/spotify.js';
+import { parseSpotifyTrackId } from '../utils/spotify.js';
 
 export class LetterUsecase {
   constructor(private repo: LetterRepository, private storage: SupabaseClient) { }
 
   async create(input: LetterInput, fromUserId: string, files?: Express.Multer.File[]): Promise<Letter> {
-    let trackData;
-    if (input.spotifyUrl) {
-      trackData = await getSpotifyTrack(input.spotifyUrl);
+    const { spotifyUrl, ...rest } = input;
+    let trackId: string | undefined;
+    if (spotifyUrl) {
+      trackId = parseSpotifyTrackId(spotifyUrl);
     }
 
-    const letter = await this.repo.create({ ...input, fromUserId });
+    const letter = await this.repo.create({ ...rest, fromUserId, spotifyTrackId: trackId });
 
-    if (trackData) {
-      await this.repo.addSong(letter.id, trackData);
-    }
 
     if (files && files.length > 0) {
       for (const file of files) {

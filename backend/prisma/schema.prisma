@@ -27,11 +27,12 @@ model User {
 }
 
 model Letter {
-  id        String   @id @default(uuid())
-  title     String
-  content   String
-  isRead    Boolean  @default(false)
-  createdAt DateTime @default(now())
+  id             String   @id @default(uuid())
+  title          String
+  content        String
+  spotifyTrackId String?
+  isRead         Boolean  @default(false)
+  createdAt      DateTime @default(now())
 
   fromUserId String
   toUserId   String
@@ -39,7 +40,6 @@ model Letter {
   toUser     User   @relation("ReceivedLetters", fields: [toUserId], references: [id])
 
   images LetterImage[]
-  song   LetterSong?
 }
 
 model LetterImage {
@@ -51,26 +51,10 @@ model LetterImage {
   letter   Letter @relation(fields: [letterId], references: [id])
 }
 
-model LetterSong {
-  id             String @id @default(uuid())
-  spotifyTrackId String
-  songName       String
-  artist         String
-  albumArtUrl    String
-  previewUrl     String
-
-  letterId String @unique
-  letter   Letter @relation(fields: [letterId], references: [id])
-}
-
 model Ping {
   id             String   @id @default(uuid())
   note           String?
-  spotifyTrackId String
-  songName       String
-  artist         String
-  albumArtUrl    String
-  previewUrl     String
+  spotifyTrackId String?
   createdAt      DateTime @default(now())
 
   fromUserId String

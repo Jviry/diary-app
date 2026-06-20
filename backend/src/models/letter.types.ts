@@ -10,4 +10,5 @@ export interface CreateLetterData {
   toUserId: string
   title: string
   content: string
+  spotifyTrackId?: string
 }
