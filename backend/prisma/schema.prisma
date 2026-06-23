@@ -20,10 +20,32 @@ model User {
   name      String
   createdAt DateTime @default(now())
 
+  partnerId String? @unique
+  partner   User?   @relation("Partner", fields: [partnerId], references: [id])
+  partnerOf User?   @relation("Partner")
+
+  sentPartnerRequests     PartnerRequest[] @relation("SentPartnerRequests")
+  receivedPartnerRequests PartnerRequest[] @relation("ReceivedPartnerRequests")
+
   sentLetters     Letter[] @relation("SentLetters")
   receivedLetters Letter[] @relation("ReceivedLetters")
-  sentPings       Ping[]   @relation("SentPings")
-  receivedPings   Ping[]   @relation("ReceivedPings")
+
+  sentPings     Ping[] @relation("SentPings")
+  receivedPings Ping[] @relation("ReceivedPings")
+}
+
+model PartnerRequest {
+  id        String   @id @default(uuid())
+  status    String   @default("pending")
+  createdAt DateTime @default(now())
+
+  fromUserId String
+  toUserId   String
+
+  fromUser User @relation("SentPartnerRequests", fields: [fromUserId], references: [id])
+  toUser   User @relation("ReceivedPartnerRequests", fields: [toUserId], references: [id])
+
+  @@unique([fromUserId, toUserId])
 }
 
 model Letter {
