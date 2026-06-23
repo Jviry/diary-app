@@ -14,7 +14,7 @@ export class PartnerRepository {
     return this.prisma.partnerRequest.findUnique({ where: { id } })
   }
 
-  async findPending(fromUserId: string, toUserId: string) {
+  async findByUsers(fromUserId: string, toUserId: string) {
     return this.prisma.partnerRequest.findUnique({
       where: { fromUserId_toUserId: { fromUserId, toUserId } }
     })
@@ -55,4 +55,3 @@ export class PartnerRepository {
   }
 
 }
-
