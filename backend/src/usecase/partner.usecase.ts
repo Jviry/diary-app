@@ -36,6 +36,19 @@ export class PartnerUsecase {
     return this.repo.updateStatus(id, PartnerRequestStatus.ACCEPTED);
   }
 
+  async getPartnerRequests(userId: string): Promise<PartnerRequest[]> {
+    return this.repo.findReceived(userId);
+  }
+
+  async getPartnerRequest(id: string, userId: string): Promise<PartnerRequest> {
+    const request = await this.repo.findById(id)
+    if (!request) throw new DomainError('Partner request not found')
+    if (request.toUserId !== userId && request.fromUserId !== userId) {
+      throw new DomainError('You are not allowed to view this request')
+    }
+    return request
+  }
+
   async rejectPartnerRequest(id: string, userId: string): Promise<void> {
     const request = await this.repo.findById(id);
     if (!request) throw new DomainError('Partner request not found');

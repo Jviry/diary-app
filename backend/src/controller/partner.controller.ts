@@ -14,6 +14,33 @@ const partnerRepo = new PartnerRepository(prisma);
 const userRepo = new UserRepository(prisma);
 const uc = new PartnerUsecase(partnerRepo, userRepo);
 
+router.get('/request/received', authenticate, async (req: AuthRequest, res: Response, next: NextFunction) => {
+  try {
+    const result = await uc.getPartnerRequests(req.userId!);
+
+    res.status(200).json({
+      message: 'Received partner requests retrieved',
+      partnerRequests: result
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get('/request/:id', authenticate, async (req: AuthRequest, res: Response, next: NextFunction) => {
+  try {
+    const { id } = req.params as { id: string };
+    const result = await uc.getPartnerRequest(id, req.userId!);
+
+    res.status(200).json({
+      message: 'Partner req received',
+      partnerRequest: result
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
 router.post('/request', authenticate, async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
     const { toUserId } = req.body as { toUserId: string };
@@ -38,7 +65,7 @@ router.post('/request', authenticate, async (req: AuthRequest, res: Response, ne
 router.put('/request/:id/accept', authenticate, async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params as { id: string };
-    
+
     const request = await partnerRepo.findById(id);
     if (!request) {
       throw new DomainError('Partner request not found');

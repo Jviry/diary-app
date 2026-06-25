@@ -1,5 +1,5 @@
 import type { PrismaClient } from '../generated/prisma/client.js';
-import type { PartnerRequestInput, PartnerRequestStatus } from '../models/partner.types.js';
+import { PartnerRequestInput, PartnerRequestStatus } from '../models/partner.types.js';
 
 export class PartnerRepository {
   constructor(private prisma: PrismaClient) { }
@@ -8,6 +8,10 @@ export class PartnerRepository {
     return this.prisma.partnerRequest.create({
       data: input
     });
+  }
+
+  async findReceived(toUserId: string) {
+    return this.prisma.partnerRequest.findMany({ where: { toUserId, status: PartnerRequestStatus.PENDING } });
   }
 
   async findById(id: string) {
@@ -19,6 +23,7 @@ export class PartnerRepository {
       where: { fromUserId_toUserId: { fromUserId, toUserId } }
     })
   }
+
 
   async updateStatus(id: string, status: PartnerRequestStatus) {
     return this.prisma.partnerRequest.update({

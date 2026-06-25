@@ -24,7 +24,7 @@ export class UserUsecase {
       { expiresIn: '7d' }
     );
 
-    return { user: { id: user.id, email: user.email, name: user.name }, token };
+    return { user: { id: user.id, email: user.email, name: user.name, partnerId: user.partnerId }, token };
   }
 
   async login(input: LoginInput): Promise<AuthResponse> {
@@ -40,6 +40,6 @@ export class UserUsecase {
       { expiresIn: '7d' }
     );
 
-    return { user: { id: user.id, email: user.email, name: user.name }, token };
+    return { user: { id: user.id, email: user.email, name: user.name, partnerId: user.partnerId }, token };
   }
 }
