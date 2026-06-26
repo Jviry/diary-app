@@ -44,9 +44,6 @@ router.get('/request/:id', authenticate, async (req: AuthRequest, res: Response,
 router.post('/request', authenticate, async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
     const { toUserId } = req.body as { toUserId: string };
-    if (!toUserId) {
-      throw new DomainError('Recipient user ID is required');
-    }
 
     const result = await uc.requestPartner({
       fromUserId: req.userId!,
@@ -86,41 +83,18 @@ router.put('/request/:id/accept', authenticate, async (req: AuthRequest, res: Re
   }
 });
 
-router.put('/request/:id/reject', authenticate, async (req: AuthRequest, res: Response, next: NextFunction) => {
-  try {
-    const { id } = req.params as { id: string };
-
-    await uc.rejectPartnerRequest(id, req.userId!);
-
-    res.status(200).json({
-      message: 'Partner request rejected successfully'
-    });
-  } catch (error) {
-    next(error);
-  }
-});
-
 router.delete('/request/:id', authenticate, async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params as { id: string };
-
-    const request = await partnerRepo.findById(id);
-    if (!request) {
-      throw new DomainError('Partner request not found');
-    }
-
-    if (request.fromUserId === req.userId) {
-      await uc.deletePartnerRequest(id, req.userId!);
+    const result = await uc.deletePartnerRequest(id, req.userId!);
+    if (result) {
       res.status(200).json({
-        message: 'Partner request cancelled successfully'
-      });
-    } else if (request.toUserId === req.userId) {
-      await uc.rejectPartnerRequest(id, req.userId!);
-      res.status(200).json({
-        message: 'Partner request rejected successfully'
+        message: "Partner request canceled successfully"
       });
     } else {
-      throw new DomainError('You are not authorized to cancel or reject this request');
+      res.status(200).json({
+        message: "Partner request rejected successfully"
+      });
     }
   } catch (error) {
     next(error);
@@ -129,16 +103,8 @@ router.delete('/request/:id', authenticate, async (req: AuthRequest, res: Respon
 
 router.delete('/', authenticate, async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
-    const user = await userRepo.findById(req.userId!);
-    if (!user) {
-      throw new DomainError('User not found');
-    }
 
-    if (!user.partnerId) {
-      throw new DomainError('You do not have a partner to remove');
-    }
-
-    await uc.removePartner(req.userId!, user.partnerId);
+    await uc.removePartner(req.userId!);
 
     res.status(200).json({
       message: 'Partner removed successfully'
