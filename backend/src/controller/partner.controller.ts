@@ -6,7 +6,6 @@ import { PartnerUsecase } from "../usecase/partner.usecase.js";
 import { PartnerRepository } from "../repository/partner.repository.js";
 import { UserRepository } from "../repository/user.repository.js";
 import { authenticate } from "../common/middleware/auth.middleware.js";
-import { DomainError } from "../common/error/domain.error.js";
 
 const router = Router();
 
@@ -63,16 +62,7 @@ router.put('/request/:id/accept', authenticate, async (req: AuthRequest, res: Re
   try {
     const { id } = req.params as { id: string };
 
-    const request = await partnerRepo.findById(id);
-    if (!request) {
-      throw new DomainError('Partner request not found');
-    }
-
-    if (request.toUserId !== req.userId) {
-      throw new DomainError('You cannot accept this request');
-    }
-
-    const result = await uc.acceptPartnerRequest(id, request.toUserId, request.fromUserId);
+    const result = await uc.acceptPartnerRequest(id, req.userId!);
 
     res.status(200).json({
       message: 'Partner request accepted successfully',

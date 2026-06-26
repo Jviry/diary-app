@@ -26,17 +26,22 @@ export class PartnerUsecase {
     return await this.repo.create({ fromUserId, toUserId });
   }
 
-  async acceptPartnerRequest(id: string, userAId: string, userBId: string): Promise<PartnerRequest> {
+  async acceptPartnerRequest(id: string, userId: string): Promise<PartnerRequest> {
     const request = await this.repo.findById(id);
     if (!request) throw new DomainError('Partner request not found');
+
+    if (request.toUserId !== userId) {
+      throw new DomainError('You cannot accept this request');
+    }
+
     if (request.status === PartnerRequestStatus.ACCEPTED) throw new DomainError('Request already accepted');
 
-    const userA = await this.userRepo.findById(userAId)
-    const userB = await this.userRepo.findById(userBId)
+    const userA = await this.userRepo.findById(request.toUserId)
+    const userB = await this.userRepo.findById(request.fromUserId)
     if (userA?.partnerId) throw new DomainError('You already have a partner')
     if (userB?.partnerId) throw new DomainError('This user already has a partner')
 
-    await this.repo.linkUsers(userAId, userBId);
+    await this.repo.linkUsers(request.toUserId, request.fromUserId);
     return this.repo.updateStatus(id, PartnerRequestStatus.ACCEPTED);
   }
 
