@@ -1,14 +1,7 @@
-export interface LetterInput {
-  toUserId: string
-  title: string
-  content: string
-  spotifyUrl?: string
-}
+import type { Letter } from '../generated/prisma/client.js';
 
-export interface CreateLetterData {
-  fromUserId: string
-  toUserId: string
-  title: string
-  content: string
-  spotifyTrackId?: string
-}
+export type CreateLetterRequestDTO = Pick<Letter, 'toUserId' | 'title' | 'content'> & {
+  spotifyUrl?: string
+};
+
+export type CreateLetterDTO = Pick<Letter, 'fromUserId' | 'toUserId' | 'title' | 'content' | 'spotifyTrackId'>;

@@ -1,13 +1,13 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { DomainError } from '../common/error/domain.error.js';
-import type { UserRepository } from '../repository/user.repository.js';
-import type { LoginInput, RegisterInput, AuthResponse } from '../models/user.types.js';
+import type { IUserRepository } from '../repository/user.repository.js';
+import type { LoginRequestDTO, RegisterRequestDTO, AuthResponseDTO } from '../models/user.types.js';
 
 export class UserUsecase {
-  constructor(private repo: UserRepository) { }
+  constructor(private repo: IUserRepository) { }
 
-  async register(input: RegisterInput): Promise<AuthResponse> {
+  async register(input: RegisterRequestDTO): Promise<AuthResponseDTO> {
     const existing = await this.repo.findByEmail(input.email);
     if (existing) throw new DomainError('Email already in use');
 
@@ -27,7 +27,7 @@ export class UserUsecase {
     return { user: { id: user.id, email: user.email, name: user.name, partnerId: user.partnerId }, token };
   }
 
-  async login(input: LoginInput): Promise<AuthResponse> {
+  async login(input: LoginRequestDTO): Promise<AuthResponseDTO> {
     const user = await this.repo.findByEmail(input.email);
     if (!user) throw new DomainError('Invalid email or password');
 

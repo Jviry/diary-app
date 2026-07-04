@@ -1,15 +1,10 @@
-export interface RegisterInput {
-  email: string
-  password: string
-  name: string
-}
+import type { User } from "../generated/prisma/client.js";
 
-export interface LoginInput {
-  email: string
-  password: string
-}
+export type RegisterRequestDTO = Pick<User, 'email' | 'password' | 'name'>;
 
-export interface AuthResponse {
+export type LoginRequestDTO = Pick<User, 'email' | 'password'>;
+
+export interface AuthResponseDTO {
   user: {
     id: string
     email: string
