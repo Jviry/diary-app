@@ -1,16 +1,28 @@
-import type { PrismaClient } from '../generated/prisma/client.js';
-import { PartnerRequestInput, PartnerRequestStatus } from '../models/partner.types.js';
+import type { PartnerRequest, PrismaClient } from '../generated/prisma/client.js';
+import { PartnerRequestStatus } from '../models/partner.types.js';
+import type { CreatePartnerRequestDTO } from '../models/partner.types.js';
 
-export class PartnerRepository {
+export interface IPartnerRepository {
+  findById(id: string): Promise<PartnerRequest | null>
+  findPendingReceived(toUserId: string): Promise<PartnerRequest[]>
+  findByUsers(fromUserId: string, toUserId: string): Promise<PartnerRequest | null>
+  create(input: CreatePartnerRequestDTO): Promise<PartnerRequest>
+  updateStatus(id: string, status: PartnerRequestStatus): Promise<PartnerRequest>
+  linkUsers(userAId: string, userBId: string): Promise<void>
+  unlinkUsers(userAId: string, userBId: string): Promise<void>
+  delete(id: string): Promise<PartnerRequest>
+}
+
+export class PartnerRepository implements IPartnerRepository {
   constructor(private prisma: PrismaClient) { }
 
-  async create(input: PartnerRequestInput) {
+  async create(input: CreatePartnerRequestDTO) {
     return this.prisma.partnerRequest.create({
       data: input
     });
   }
 
-  async findReceived(toUserId: string) {
+  async findPendingReceived(toUserId: string) {
     return this.prisma.partnerRequest.findMany({ where: { toUserId, status: PartnerRequestStatus.PENDING } });
   }
 

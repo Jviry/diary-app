@@ -1,13 +1,13 @@
 import { DomainError } from '../common/error/domain.error.js';
 import { PartnerRequest } from '../generated/prisma/client.js';
-import { PartnerRequestInput, PartnerRequestStatus } from '../models/partner.types.js';
-import type { PartnerRepository } from '../repository/partner.repository.js';
+import { CreatePartnerRequestDTO, PartnerRequestStatus } from '../models/partner.types.js';
+import type { IPartnerRepository } from '../repository/partner.repository.js';
 import type { UserRepository } from '../repository/user.repository.js';
 
 export class PartnerUsecase {
-  constructor(private repo: PartnerRepository, private userRepo: UserRepository) { }
+  constructor(private repo: IPartnerRepository, private userRepo: UserRepository) { }
 
-  async requestPartner(input: PartnerRequestInput): Promise<PartnerRequest> {
+  async requestPartner(input: CreatePartnerRequestDTO): Promise<PartnerRequest> {
     const { fromUserId, toUserId } = input;
 
     if (!toUserId) {
@@ -46,7 +46,7 @@ export class PartnerUsecase {
   }
 
   async getPartnerRequests(userId: string): Promise<PartnerRequest[]> {
-    return this.repo.findReceived(userId);
+    return this.repo.findPendingReceived(userId);
   }
 
   async getPartnerRequest(id: string, userId: string): Promise<PartnerRequest> {

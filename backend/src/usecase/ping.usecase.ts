@@ -1,12 +1,12 @@
 import { Ping } from "../generated/prisma/client.js";
-import type { PingInput } from "../models/ping.types.js";
-import type { PingRepository } from "../repository/ping.repository.js";
+import type { CreatePingRequestDTO } from "../models/ping.types.js";
+import type { IPingRepository } from "../repository/ping.repository.js";
 import { parseSpotifyTrackId } from "../utils/spotify.js";
 
 export class PingUsecase {
-  constructor(private repo: PingRepository) { }
+  constructor(private repo: IPingRepository) { }
 
-  async create(input: PingInput, fromUserId: string): Promise<Ping> {
+  async create(input: CreatePingRequestDTO, fromUserId: string): Promise<Ping> {
     const spotifyTrackId = parseSpotifyTrackId(input.spotifyUrl);
 
     const ping = await this.repo.create({ spotifyTrackId, fromUserId, note: input.note, toUserId: input.toUserId });

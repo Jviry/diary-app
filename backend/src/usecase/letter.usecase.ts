@@ -1,22 +1,21 @@
 import { DomainError } from '../common/error/domain.error.js';
 import type { Letter } from '../generated/prisma/client.js';
-import type { LetterInput } from '../models/letter.types.js';
-import type { LetterRepository } from '../repository/letter.repository.js';
+import type { CreateLetterRequestDTO } from '../models/letter.types.js';
+import type { ILetterRepository } from '../repository/letter.repository.js';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { parseSpotifyTrackId } from '../utils/spotify.js';
 
 export class LetterUsecase {
-  constructor(private repo: LetterRepository, private storage: SupabaseClient) { }
+  constructor(private repo: ILetterRepository, private storage: SupabaseClient) { }
 
-  async create(input: LetterInput, fromUserId: string, files?: Express.Multer.File[]): Promise<Letter> {
+  async create(input: CreateLetterRequestDTO, fromUserId: string, files?: Express.Multer.File[]): Promise<Letter> {
     const { spotifyUrl, ...rest } = input;
-    let trackId: string | undefined;
+    let trackId: string | null = null;
     if (spotifyUrl) {
       trackId = parseSpotifyTrackId(spotifyUrl);
     }
 
     const letter = await this.repo.create({ ...rest, fromUserId, spotifyTrackId: trackId });
-
 
     if (files && files.length > 0) {
       for (const file of files) {
@@ -56,7 +55,7 @@ export class LetterUsecase {
   }
 
   async getReceived(userId: string): Promise<Letter[]> {
-    return this.repo.findRecieved(userId);
+    return this.repo.findReceived(userId);
   }
 
   async markAsRead(id: string, userId: string): Promise<Letter> {

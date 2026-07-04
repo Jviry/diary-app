@@ -1,12 +1,8 @@
-export interface CreatePingData {
-  toUserId: string
-  fromUserId: string
-  note?: string
-  spotifyTrackId: string
-}
+import type { Ping } from "../generated/prisma/client.js";
 
-export interface PingInput {
-  toUserId: string
-  note?: string
+export type CreatePingDTO = Pick<Ping, 'toUserId' | 'fromUserId' | 'note' | 'spotifyTrackId'>;
+
+export type CreatePingRequestDTO = Pick<Ping, 'toUserId' | 'note'> & {
   spotifyUrl: string
-}
+};
+

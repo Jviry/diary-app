@@ -1,10 +1,15 @@
-import type { PrismaClient } from "@prisma/client/extension";
-import type { CreatePingData } from "../models/ping.types.js";
+import type { Ping, PrismaClient } from '../generated/prisma/client.js';
+import type { CreatePingDTO } from "../models/ping.types.js";
 
-export class PingRepository {
+export interface IPingRepository {
+  create(input: CreatePingDTO): Promise<Ping>
+  findReceived(userId: string): Promise<Ping[]>
+  findSent(userId: string): Promise<Ping[]>
+}
+export class PingRepository implements IPingRepository {
   constructor(private prisma: PrismaClient) { }
 
-  async create(input: CreatePingData) {
+  async create(input: CreatePingDTO) {
     return this.prisma.ping.create({
       data: input
     });

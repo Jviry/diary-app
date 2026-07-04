@@ -1,18 +1,9 @@
-export interface PartnerRequestInput {
-  toUserId: string
-  fromUserId: string
-}
+import type { PartnerRequest } from "../generated/prisma/client.js";
 
-export interface CreateLetterData {
-  fromUserId: string
-  toUserId: string
-  title: string
-  content: string
-  spotifyTrackId?: string
-}
+export type CreatePartnerRequestDTO = Pick<PartnerRequest, 'toUserId' | 'fromUserId'>;
 
 export enum PartnerRequestStatus {
   PENDING = 'pending',
   ACCEPTED = 'accepted',
   REJECTED = 'rejected'
-}
+};
