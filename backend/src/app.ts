@@ -11,7 +11,7 @@ app.use(cors());
 appController(app);
 app.use(errorHandler);
 
-const PORT = 3000;
+const PORT = 4000;
 
 app.listen(PORT, () => {
   console.log(`Server running at ${PORT}`);
