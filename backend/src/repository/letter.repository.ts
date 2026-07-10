@@ -5,6 +5,7 @@ export interface ILetterRepository {
   findById(id: string): Promise<(Letter & { images: LetterImage[] }) | null>
   findSent(userId: string): Promise<Letter[]>
   findReceived(userId: string): Promise<Letter[]>
+  findLatestReceived(userId: string): Promise<Letter | null>
   create(input: CreateLetterDTO): Promise<Letter>
   addImage(letterId: string, s3Key: string): Promise<LetterImage>
   markAsRead(id: string): Promise<Letter>
@@ -22,6 +23,12 @@ export class LetterRepository implements ILetterRepository {
     return this.prisma.letter.findMany({ where: { fromUserId: user_id } });
   }
 
+  async findLatestReceived(userId: string) {
+    return this.prisma.letter.findFirst({
+      where: { toUserId: userId },
+      orderBy: { createdAt: 'desc' },
+    })
+  }
   async findReceived(user_id: string) {
     return this.prisma.letter.findMany({ where: { toUserId: user_id } });
   }

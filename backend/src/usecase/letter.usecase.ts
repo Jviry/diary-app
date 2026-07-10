@@ -58,6 +58,10 @@ export class LetterUsecase {
     return this.repo.findReceived(userId);
   }
 
+  async getLatestReceived(userId: string): Promise<Letter | null> {
+    return this.repo.findLatestReceived(userId);
+  }
+
   async markAsRead(id: string, userId: string): Promise<Letter> {
     const letter = await this.repo.findById(id);
 

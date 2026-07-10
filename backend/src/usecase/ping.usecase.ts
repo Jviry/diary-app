@@ -18,6 +18,10 @@ export class PingUsecase {
     return this.repo.findReceived(userId);
   }
 
+  async getLatestReceived(userId: string): Promise<Ping | null> {
+    return this.repo.findLatestReceived(userId);
+  }
+
   async getSent(userId: string): Promise<Ping[]> {
     return this.repo.findSent(userId);
   }
