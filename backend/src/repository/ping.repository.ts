@@ -5,6 +5,7 @@ export interface IPingRepository {
   create(input: CreatePingDTO): Promise<Ping>
   findReceived(userId: string): Promise<Ping[]>
   findSent(userId: string): Promise<Ping[]>
+  findLatestReceived(userId: string): Promise<Ping | null>
 }
 export class PingRepository implements IPingRepository {
   constructor(private prisma: PrismaClient) { }
@@ -12,6 +13,19 @@ export class PingRepository implements IPingRepository {
   async create(input: CreatePingDTO) {
     return this.prisma.ping.create({
       data: input
+    });
+  }
+
+  async findLatestReceived(userId: string) {
+
+    const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+
+    return this.prisma.ping.findFirst({
+      where: {
+        toUserId: userId,
+        createdAt: { gte: twentyFourHoursAgo }
+      },
+      orderBy: { createdAt: 'desc' },
     });
   }
 

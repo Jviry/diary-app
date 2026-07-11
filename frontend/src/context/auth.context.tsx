@@ -1,7 +1,8 @@
 'use client';
 
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
 import type { User } from '@/types/auth.types';
+import { userService } from '@/services/user.service';
 
 interface AuthContextType {
   user: User | null
@@ -9,26 +10,47 @@ interface AuthContextType {
   login: (user: User, token: string) => void
   logout: () => void
   isAuthenticated: boolean
+  isHydrated: boolean
+  getUserById: (id: string) => Promise<User>
 };
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [auth, setAuth] = useState<{ user: User | null; token: string | null }>(() => {
-    if (typeof window === 'undefined') return { user: null, token: null };
+  const [auth, setAuth] = useState<{ user: User | null; token: string | null }>({ user: null, token: null });
+  const [isHydrated, setIsHydrated] = useState(false);
 
-    const storedToken = localStorage.getItem('token');
-    const storedUser = localStorage.getItem('user');
+  const logout = () => {
+    setAuth({ user: null, token: null });
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+  };
 
-    if (storedToken && storedUser) {
-      return {
-        token: storedToken,
-        user: JSON.parse(storedUser)
-      };
-    }
+  useEffect(() => {
+    const initializeAuth = async () => {
+      const storedToken = localStorage.getItem('token');
+      const storedUser = localStorage.getItem('user');
 
-    return { user: null, token: null };
-  })
+      if (storedToken && storedUser) {
+        // 1. Instantly restore from localStorage to prevent UI flashing
+        const parsedUser = JSON.parse(storedUser);
+        setAuth({ token: storedToken, user: parsedUser });
+
+        try {
+          // 2. Refresh & validate user details with the backend
+          const freshUser = await userService.getCurrentUser();
+          setAuth({ token: storedToken, user: freshUser });
+          localStorage.setItem('user', JSON.stringify(freshUser));
+        } catch (error) {
+          console.error('Session verification failed, logging out:', error);
+          logout();
+        }
+      }
+      setIsHydrated(true);
+    };
+
+    initializeAuth();
+  }, []);
 
   const login = (user: User, token: string) => {
     setAuth({ user, token });
@@ -36,14 +58,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     localStorage.setItem('user', JSON.stringify(user));
   };
 
-  const logout = () => {
-    setAuth({ user: null, token: null });
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-  }
+  const getUserById = async (id: string): Promise<User> => {
+    return userService.getUserById(id);
+  };
 
   return (
-    <AuthContext.Provider value={{ user: auth.user, token: auth.token, login, logout, isAuthenticated: !!auth.user }}>
+    <AuthContext.Provider value={{ user: auth.user, token: auth.token, login, logout, isAuthenticated: !!auth.user, isHydrated, getUserById }}>
       {children}
     </AuthContext.Provider>
   );
@@ -54,3 +74,4 @@ export const useAuth = () => {
   if (!context) throw new Error('useAuth must be used within AuthProvider');
   return context;
 };
+

@@ -50,4 +50,17 @@ router.get('/received', authenticate, async (req: AuthRequest, res: Response, ne
     next(error);
   }
 })
+
+router.get('/latest', authenticate, async (req: AuthRequest, res: Response, next: NextFunction) => {
+  try {
+    const result = await uc.getLatestReceived(req.userId!)
+    res.status(200).json({
+      message: 'Latest ping retrieved successfully',
+      ping: result
+    })
+  } catch (error) {
+    next(error)
+  }
+})
+
 export default router;

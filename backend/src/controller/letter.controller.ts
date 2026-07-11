@@ -40,6 +40,18 @@ router.get('/received', authenticate, async (req: AuthRequest, res: Response, ne
   }
 });
 
+router.get('/latest', authenticate, async (req: AuthRequest, res: Response, next: NextFunction) => {
+  try {
+    const result = await uc.getLatestReceived(req.userId!)
+    res.status(200).json({
+      message: 'Latest letter retrieved successfully',
+      letter: result
+    })
+  } catch (error) {
+    next(error)
+  }
+})
+
 router.get('/:id', authenticate, async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params as { id: string };

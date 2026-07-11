@@ -2,10 +2,16 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { DomainError } from '../common/error/domain.error.js';
 import type { IUserRepository } from '../repository/user.repository.js';
-import type { LoginRequestDTO, RegisterRequestDTO, AuthResponseDTO } from '../models/user.types.js';
+import type { LoginRequestDTO, RegisterRequestDTO, AuthResponseDTO, UserDTO } from '../models/user.types.js';
 
 export class UserUsecase {
   constructor(private repo: IUserRepository) { }
+
+  async findById(id: string): Promise<UserDTO | null> {
+    const user = await this.repo.findById(id);
+    if (!user) return null;
+    return { id: user.id, email: user.email, name: user.name, partnerId: user.partnerId };
+  }
 
   async register(input: RegisterRequestDTO): Promise<AuthResponseDTO> {
     const existing = await this.repo.findByEmail(input.email);
