@@ -17,8 +17,14 @@ export class PingRepository implements IPingRepository {
   }
 
   async findLatestReceived(userId: string) {
+
+    const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+
     return this.prisma.ping.findFirst({
-      where: { toUserId: userId },
+      where: {
+        toUserId: userId,
+        createdAt: { gte: twentyFourHoursAgo }
+      },
       orderBy: { createdAt: 'desc' },
     });
   }
