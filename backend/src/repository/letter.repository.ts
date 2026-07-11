@@ -27,6 +27,11 @@ export class LetterRepository implements ILetterRepository {
     return this.prisma.letter.findFirst({
       where: { toUserId: userId },
       orderBy: { createdAt: 'desc' },
+      include: {
+        fromUser: {
+          select: { id: true, name: true }  // ← include sender name
+        }
+      }
     })
   }
   async findReceived(user_id: string) {

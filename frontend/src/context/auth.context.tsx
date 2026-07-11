@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, useEffect } from 'react';
 import type { User } from '@/types/auth.types';
+import { userService } from '@/services/user.service';
 
 interface AuthContextType {
   user: User | null
@@ -10,6 +11,7 @@ interface AuthContextType {
   logout: () => void
   isAuthenticated: boolean
   isHydrated: boolean
+  getUserById: (id: string) => Promise<User>
 };
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -18,14 +20,36 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [auth, setAuth] = useState<{ user: User | null; token: string | null }>({ user: null, token: null });
   const [isHydrated, setIsHydrated] = useState(false);
 
+  const logout = () => {
+    setAuth({ user: null, token: null });
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+  };
+
   useEffect(() => {
-    const storedToken = localStorage.getItem('token');
-    const storedUser = localStorage.getItem('user');
-    if (storedToken && storedUser) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setAuth({ token: storedToken, user: JSON.parse(storedUser) });
-    }
-    setIsHydrated(true);
+    const initializeAuth = async () => {
+      const storedToken = localStorage.getItem('token');
+      const storedUser = localStorage.getItem('user');
+
+      if (storedToken && storedUser) {
+        // 1. Instantly restore from localStorage to prevent UI flashing
+        const parsedUser = JSON.parse(storedUser);
+        setAuth({ token: storedToken, user: parsedUser });
+
+        try {
+          // 2. Refresh & validate user details with the backend
+          const freshUser = await userService.getCurrentUser();
+          setAuth({ token: storedToken, user: freshUser });
+          localStorage.setItem('user', JSON.stringify(freshUser));
+        } catch (error) {
+          console.error('Session verification failed, logging out:', error);
+          logout();
+        }
+      }
+      setIsHydrated(true);
+    };
+
+    initializeAuth();
   }, []);
 
   const login = (user: User, token: string) => {
@@ -34,14 +58,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     localStorage.setItem('user', JSON.stringify(user));
   };
 
-  const logout = () => {
-    setAuth({ user: null, token: null });
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-  }
+  const getUserById = async (id: string): Promise<User> => {
+    return userService.getUserById(id);
+  };
 
   return (
-    <AuthContext.Provider value={{ user: auth.user, token: auth.token, login, logout, isAuthenticated: !!auth.user, isHydrated }}>
+    <AuthContext.Provider value={{ user: auth.user, token: auth.token, login, logout, isAuthenticated: !!auth.user, isHydrated, getUserById }}>
       {children}
     </AuthContext.Provider>
   );

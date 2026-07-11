@@ -23,7 +23,6 @@ export const LatestLetterPreview = () => {
         <div className="absolute w-[calc(100%_-_259px)] top-[43px] left-[129px] h-[336px] bg-[#e9e9dd] rounded-sm border border-solid border-[#e0bfbf33] rotate-[1.50deg] aspect-[1.33]" />
         {latestLetter ? (
           <LetterPreview letter={latestLetter} />
-
         ) : (
           <EmptyLetterPreview />
         )}

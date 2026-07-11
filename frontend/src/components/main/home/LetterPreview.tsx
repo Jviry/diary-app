@@ -29,7 +29,7 @@ export const LetterPreview = ({ letter }: LetterPreviewProps) => {
         <div className="inline-flex flex-col items-start gap-2 relative flex-[0_0_auto]">
           <div className="flex flex-col items-center relative self-stretch w-full flex-[0_0_auto]">
             <div className="relative flex items-center justify-center w-fit mt-[-1.00px] font-[family-name:var(--font-garamond)] font-normal italic text-[#570013] text-xl text-center tracking-[0] leading-8 whitespace-nowrap">
-              From {letter.fromUserId}
+              From {letter.fromUser.name}
             </div>
           </div>
           <div className="flex flex-col items-center relative self-stretch w-full flex-[0_0_auto]">

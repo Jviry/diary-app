@@ -7,7 +7,7 @@ interface PingPreviewProps {
 
 export const PingPreview = ({ ping }: PingPreviewProps) => {
   return (
-    <div className="flex items-start gap-[15.99px] relative self-stretch w-full flex-[0_0_auto]">
+    <div className="flex items-start gap-[10px] relative self-stretch w-full flex-[0_0_auto]">
       <div className="pt-1 pb-[7px] px-0 inline-flex flex-col items-start relative flex-[0_0_auto]">
         <img
           className="relative w-3 h-[18px]"
@@ -16,7 +16,7 @@ export const PingPreview = ({ ping }: PingPreviewProps) => {
           src="/icons/music.svg"
         />
       </div>
-      <div className="relative w-[265.33px] h-[130px]">
+      <div className="relative w-full h-[175px]">
         <div className="flex flex-col w-full items-start pt-0 pb-[0.75px] px-0 absolute -top-px left-0">
           {ping.note && (
             <p className="relative w-fit mt-[-1.00px] font-[family-name:var(--font-garamond)] font-normal text-[#1b1c15] text-[17px] tracking-[0] leading-[25.5px]">
@@ -33,7 +33,7 @@ export const PingPreview = ({ ping }: PingPreviewProps) => {
           <iframe
             src={`https://open.spotify.com/embed/track/${ping.spotifyTrackId}`}
             width="100%"
-            height="80"
+            height="100"
             style={{ border: 'none' }}
             allow="encrypted-media"
             loading="lazy"

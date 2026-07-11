@@ -1,3 +1,5 @@
+import { User } from "./auth.types"
+
 export interface LetterImage {
   id: string
   s3Key: string
@@ -13,6 +15,7 @@ export interface Letter {
   createdAt: string
   fromUserId: string
   toUserId: string
+  fromUser: User
   images: LetterImage[]
 }
 
