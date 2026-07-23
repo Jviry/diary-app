@@ -14,8 +14,10 @@ export const Header = () => {
   const pathname = usePathname();
 
   return (
-    <header className="flex flex-1 max-h-[74px] relative flex-col w-[1280px] items-start px-10 py-0 bg-[#fbfaeecc] shadow-[0px_1px_2px_#0000000d] backdrop-blur-[2px] backdrop-brightness-[100%] [-webkit-backdrop-filter:blur(2px)_brightness(100%)]">
-      <div className="flex max-w-[1200px] items-center justify-between px-16 py-4 relative w-full flex-[0_0_auto]">
+    <header
+      className="sticky top-0 z-50 w-full bg-[#fbfaeecc] shadow-sm backdrop-blur-md"
+    >
+      <div className="mx-auto flex h-[74px] max-w-[1200px] items-center justify-between px-10">
         <Link
           href="#"
           aria-label="D/ARY home"
@@ -37,16 +39,18 @@ export const Header = () => {
                 key={item.label}
                 href={item.href}
                 aria-current={active ? "page" : undefined}
-                className={`inline-flex flex-col items-start relative flex-[0_0_auto] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#570013] ${active
-                  ? "pt-0 pb-1 px-0 border-b-2 [border-bottom-style:solid] border-[#570013]"
-                  : ""
+                className={`inline-flex flex-col items-start relative flex-[0_0_auto] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#570013] transition-all duration-200 group
+                  ${active
+                    ? "pt-0 pb-1 px-0 border-b-2 border-[#570013]"
+                    : "pt-0 pb-1 px-0 border-b-2 border-transparent hover:border-[#57001366]"
                   }`}
               >
                 <div
-                  className={`relative flex items-center w-fit ${active ? "mt-[-2.00px]" : "mt-[-1.00px]"
-                    } ${active
+                  className={`relative flex items-center w-fit transition-colors duration-200
+                    ${active ? "mt-[-2.00px]" : "mt-[-1.00px]"}
+                    ${active
                       ? "font-[family-name:var(--font-garamond)] font-semibold text-[#570013]"
-                      : "font-[family-name:var(--font-garamond)] font-medium text-[#584141]"
+                      : "font-[family-name:var(--font-garamond)] font-medium text-[#584141] hover:text-[#570013]"
                     } text-xl tracking-[0] leading-8 whitespace-nowrap`}
                 >
                   {item.label}

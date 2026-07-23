@@ -16,7 +16,9 @@ const upload = multer({ storage: multer.memoryStorage() })
 
 router.get('/sent', authenticate, async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
-    const result = await uc.getSent(req.userId!);
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 6;
+    const result = await uc.getSent(req.userId!, page, limit);
 
     res.status(200).json({
       message: 'Sent Letters retrieved successfully',
@@ -29,11 +31,16 @@ router.get('/sent', authenticate, async (req: AuthRequest, res: Response, next: 
 
 router.get('/received', authenticate, async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
-    const result = await uc.getReceived(req.userId!);
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 6;
+    const unreadOnly = req.query.unreadOnly === 'true';
+
+    const result = await uc.getReceived(req.userId!, { page, limit, unreadOnly });
 
     res.status(200).json({
       message: 'Received Letters retrieved successfully',
-      letters: result
+      letters: result.letters,
+      pagination: result.pagination
     });
   } catch (error) {
     next(error);

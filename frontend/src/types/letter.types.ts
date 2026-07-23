@@ -25,3 +25,15 @@ export interface CreateLetterRequest {
   content: string
   spotifyUrl?: string
 }
+
+export interface Pagination {
+  page: number
+  limit: number
+  total: number
+  totalPages: number
+}
+
+export interface PaginatedLetters {
+  letters: Letter[]
+  pagination: Pagination
+}

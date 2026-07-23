@@ -5,3 +5,9 @@
   --font-garamond: var(--font-garamond);
   --font-inter: var(--font-inter);
 }
+@layer components {
+
+  .diary-focus {
+    @apply outline outline-2 outline-offset-2 outline-[#570013];
+  }
+}
