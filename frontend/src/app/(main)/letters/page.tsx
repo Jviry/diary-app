@@ -16,7 +16,10 @@ export default function LettersArchive() {
 
   const { letters, pagination, loading } = useReceivedLetters(page, unreadOnly);
 
-  const visibleLetters = unreadOnly ? letters.filter((letter) => !letter.isRead) : letters;
+  const handleFilterChange = (nextUnreadOnly: boolean) => {
+    setUnreadOnly(nextUnreadOnly);
+    setPage(1);
+  };
 
   return (
     <Layout>
@@ -31,14 +34,14 @@ export default function LettersArchive() {
             </p>
           </div>
 
-          <LettersFilterTabs unreadOnly={unreadOnly} onChange={setUnreadOnly} />
+          <LettersFilterTabs unreadOnly={unreadOnly} onChange={handleFilterChange} />
         </div>
 
-        {visibleLetters.length === 0 ? (
+        {!loading && letters.length === 0 ? (
           <EmptyLettersState />
         ) : (
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {visibleLetters.map((letter) => (
+            {letters.map((letter) => (
               <LetterCard key={letter.id} letter={letter} now={now} />
             ))}
           </div>
