@@ -10,6 +10,7 @@ export function useReceivedLetters(page: number, unreadOnly: boolean) {
   const [letters, setLetters] = useState<Letter[]>([]);
   const [pagination, setPagination] = useState<Pagination | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -22,7 +23,8 @@ export function useReceivedLetters(page: number, unreadOnly: boolean) {
         setLetters(result.letters);
         setPagination(result.pagination);
       } catch (error) {
-        console.error('Failed to fetch letters', error);
+        const message = error instanceof Error ? error.message : 'Failed to fetch letters';
+        setError(message);
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -37,6 +39,7 @@ export function useReceivedLetters(page: number, unreadOnly: boolean) {
   return {
     letters,
     pagination,
-    loading
+    loading,
+    error
   };
 }

@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 export function useLatestLetter() {
   const [letter, setLetter] = useState<Letter | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchLetter() {
@@ -14,7 +15,8 @@ export function useLatestLetter() {
         const result = await letterService.getLatestReceived();
         setLetter(result);
       } catch (error) {
-        console.error('Failed to fetch letter', error);
+        const message = error instanceof Error ? error.message : 'Failed to fetch letter';
+        setError(message);
       } finally {
         setLoading(false);
       }
@@ -25,6 +27,7 @@ export function useLatestLetter() {
 
   return {
     letter,
-    loading
+    loading,
+    error
   };
 }

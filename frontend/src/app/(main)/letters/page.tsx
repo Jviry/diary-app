@@ -26,7 +26,7 @@ export default function LettersArchive() {
       <div className="mx-auto flex max-w-[1152px] flex-col gap-10 px-6 py-10 sm:px-10 sm:py-14 lg:px-16">
         <div className="flex flex-col items-start justify-between gap-6 border-b border-border/30 pb-4 sm:flex-row sm:items-end">
           <div className="flex flex-col gap-2">
-            <h1 className="font-display text-4xl font-bold font-[family-name:var(--font-playfair)] leading-[1.1] tracking-tight text-primary sm:text-5xl">
+            <h1 className="font-display text-4xl font-bold font-[family-name:var(--font-playfair)] text-[#570013] leading-[1.1] tracking-tight text-primary sm:text-5xl">
               The Archive
             </h1>
             <p className=" font-[family-name:var(--font-garamond)] text-xl italic text-foreground/90">
@@ -37,7 +37,16 @@ export default function LettersArchive() {
           <LettersFilterTabs unreadOnly={unreadOnly} onChange={handleFilterChange} />
         </div>
 
-        {!loading && letters.length === 0 ? (
+        {loading ? (
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {Array.from({ length: 6 }).map((_, index) => (
+              <div
+                key={index}
+                className="h-[280px] rounded-lg bg-[#e4e3d7] animate-pulse"
+              />
+            ))}
+          </div>
+        ) : letters.length === 0 ? (
           <EmptyLettersState />
         ) : (
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">

@@ -5,7 +5,7 @@ export const WriteLetterFab = () => {
     <Link
       href="/letters/new"
       aria-label="Write a Letter"
-      className="group fixed bottom-8 right-8 flex h-16 w-16 items-center justify-center rounded-xl bg-[linear-gradient(145deg,#800020_0%,#570013_100%)] shadow-[inset_-2px_-2px_5px_0_#00000033,2px_2px_5px_0_#0000004d] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#570013]"
+      className="group fixed z-[50] bottom-8 right-8 flex h-16 w-16 items-center justify-center rounded-xl bg-[linear-gradient(145deg,#800020_0%,#570013_100%)] shadow-[inset_-2px_-2px_5px_0_#00000033,2px_2px_5px_0_#0000004d] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#570013]"
     >
       <svg width="23" height="20" viewBox="0 0 23 20" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path
