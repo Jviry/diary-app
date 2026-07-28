@@ -4,6 +4,7 @@ export interface LetterImage {
   id: string
   s3Key: string
   letterId: string
+  url?: string
 }
 
 export interface Letter {

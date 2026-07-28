@@ -36,7 +36,7 @@ export class LetterUsecase {
       }
     }
 
-    return letter;
+    return this.getById(letter.id, fromUserId);
   }
 
   async getById(id: string, userId: string): Promise<Letter> {
@@ -45,6 +45,24 @@ export class LetterUsecase {
     if (!letter) throw new DomainError('Letter not found');
     if (letter.toUserId !== userId && letter.fromUserId !== userId) {
       throw new DomainError('You are not allowed to see this letter');
+    }
+
+    if (letter.images && letter.images.length > 0) {
+      const imagesWithSignedUrls = await Promise.all(
+        letter.images.map(async (img) => {
+          const { data } = await this.storage.storage
+            .from('letter-images')
+            .createSignedUrl(img.s3Key, 3600);
+          return {
+            ...img,
+            url: data?.signedUrl || null,
+          };
+        })
+      );
+      return {
+        ...letter,
+        images: imagesWithSignedUrls,
+      } as unknown as Letter;
     }
 
     return letter;

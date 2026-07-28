@@ -26,6 +26,19 @@ export const letterService = {
     return data;
   },
 
+  async getById(id: string): Promise<Letter | null> {
+    const { data } = await api.get(`/letters/${id}`);
+    return data.letter;
+  },
+
+  async delete(id: string): Promise<void> {
+    await api.delete(`/letters/${id}`);
+  },
+
+  async markAsRead(id: string): Promise<void> {
+    await api.patch(`/letters/${id}/read`);
+  },
+
   async create(payload: CreateLetterRequest, files?: File[]): Promise<Letter> {
     const formData = new FormData();
 

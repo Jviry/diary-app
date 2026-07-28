@@ -16,7 +16,17 @@ export class LetterRepository implements ILetterRepository {
   constructor(private prisma: PrismaClient) { }
 
   async findById(id: string) {
-    return this.prisma.letter.findUnique({ where: { id }, include: { images: true } });
+    return this.prisma.letter.findUnique({
+      where: { id },
+      include: {
+        images: true,
+        fromUser: {
+          select: {
+            name: true,
+          },
+        },
+      },
+    });
   }
 
   async findSent(user_id: string, page: number = 1, limit: number = 6) {
