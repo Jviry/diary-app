@@ -1,6 +1,6 @@
 import { DomainError } from '../common/error/domain.error.js';
 import type { Letter } from '../generated/prisma/client.js';
-import type { CreateLetterRequestDTO } from '../models/letter.types.js';
+import type { CreateLetterRequestDTO, FindReceivedOptions, PaginatedLetters } from '../models/letter.types.js';
 import type { ILetterRepository } from '../repository/letter.repository.js';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { parseSpotifyTrackId } from '../utils/spotify.js';
@@ -36,7 +36,7 @@ export class LetterUsecase {
       }
     }
 
-    return letter;
+    return this.getById(letter.id, fromUserId);
   }
 
   async getById(id: string, userId: string): Promise<Letter> {
@@ -47,15 +47,33 @@ export class LetterUsecase {
       throw new DomainError('You are not allowed to see this letter');
     }
 
+    if (letter.images && letter.images.length > 0) {
+      const imagesWithSignedUrls = await Promise.all(
+        letter.images.map(async (img) => {
+          const { data } = await this.storage.storage
+            .from('letter-images')
+            .createSignedUrl(img.s3Key, 3600);
+          return {
+            ...img,
+            url: data?.signedUrl || null,
+          };
+        })
+      );
+      return {
+        ...letter,
+        images: imagesWithSignedUrls,
+      } as unknown as Letter;
+    }
+
     return letter;
   }
 
-  async getSent(userId: string): Promise<Letter[]> {
-    return this.repo.findSent(userId);
+  async getSent(userId: string, page: number, limit: number): Promise<PaginatedLetters> {
+    return this.repo.findSent(userId, page, limit);
   }
 
-  async getReceived(userId: string): Promise<Letter[]> {
-    return this.repo.findReceived(userId);
+  async getReceived(userId: string, options: FindReceivedOptions): Promise<PaginatedLetters> {
+    return this.repo.findReceived(userId, options);
   }
 
   async getLatestReceived(userId: string): Promise<Letter | null> {

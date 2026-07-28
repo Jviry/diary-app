@@ -32,12 +32,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       const storedUser = localStorage.getItem('user');
 
       if (storedToken && storedUser) {
-        // 1. Instantly restore from localStorage to prevent UI flashing
         const parsedUser = JSON.parse(storedUser);
         setAuth({ token: storedToken, user: parsedUser });
 
         try {
-          // 2. Refresh & validate user details with the backend
           const freshUser = await userService.getCurrentUser();
           setAuth({ token: storedToken, user: freshUser });
           localStorage.setItem('user', JSON.stringify(freshUser));

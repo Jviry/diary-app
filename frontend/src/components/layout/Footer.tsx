@@ -31,9 +31,9 @@ export const Footer = () => {
             <a
               key={link.label}
               href={link.href}
-              className="inline-flex flex-col items-start relative self-stretch flex-[0_0_auto] opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#570013]"
+              className="inline-flex flex-col items-start relative self-stretch flex-[0_0_auto] opacity-80 group focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#570013] "
             >
-              <div className="relative flex items-center w-fit mt-[-1.00px] font-[family-name:var(--font-inter)] font-normal text-[#584141] text-[11px] tracking-[0.88px] leading-[11px] whitespace-nowrap">
+              <div className="relative flex items-center w-fit mt-[-1.00px] font-[family-name:var(--font-inter)] font-normal text-[#584141] group-hover:text-[#570013] text-[11px] tracking-[0.88px] leading-[11px] whitespace-nowrap">
                 {link.label}
               </div>
             </a>

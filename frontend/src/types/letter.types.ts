@@ -4,6 +4,7 @@ export interface LetterImage {
   id: string
   s3Key: string
   letterId: string
+  url?: string
 }
 
 export interface Letter {
@@ -24,4 +25,16 @@ export interface CreateLetterRequest {
   title: string
   content: string
   spotifyUrl?: string
+}
+
+export interface Pagination {
+  page: number
+  limit: number
+  total: number
+  totalPages: number
+}
+
+export interface PaginatedLetters {
+  letters: Letter[]
+  pagination: Pagination
 }

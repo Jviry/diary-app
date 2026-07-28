@@ -1,9 +1,9 @@
 import type { User, PrismaClient } from '../generated/prisma/client.js';
-import type { RegisterRequestDTO } from '../models/user.types.js';
+import type { RegisterRequestDTO, UserWithPartner } from '../models/user.types.js';
 
 export interface IUserRepository {
   findByEmail(email: string): Promise<User | null>
-  findById(id: string): Promise<User | null>
+  findById(id: string): Promise<UserWithPartner | null>
   create(input: RegisterRequestDTO): Promise<User>
 }
 
@@ -15,7 +15,14 @@ export class UserRepository implements IUserRepository {
   }
 
   async findById(id: string) {
-    return this.prisma.user.findUnique({ where: { id } });
+    return this.prisma.user.findUnique({
+      where: { id },
+      include: {
+        partner: {
+          select: { id: true, name: true, email: true }
+        }
+      }
+    });
   }
 
   async create(input: RegisterRequestDTO) {

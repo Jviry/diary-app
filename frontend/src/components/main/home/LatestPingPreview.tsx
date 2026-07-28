@@ -18,7 +18,14 @@ export const LatestPingPreview = () => {
         </h2>
       </div>
       <article className="flex flex-col items-start p-4 relative self-stretch w-full flex-[0_0_auto] bg-[#efeee3] rounded-lg border-l-4 [border-left-style:solid] border-[#570013] shadow-[0px_1px_2px_#0000000d]">
-        {latestPing ? (
+        {loading ? (
+          <div className="flex flex-col gap-3 w-full animate-pulse">
+            <div className="h-4 w-1/3 bg-[#d8d7cc] rounded" />
+            <div className="h-3 w-full bg-[#d8d7cc] rounded" />
+            <div className="h-3 w-4/5 bg-[#d8d7cc] rounded" />
+            <div className="h-3 w-2/3 bg-[#d8d7cc] rounded" />
+          </div>
+        ) : latestPing ? (
           <PingPreview ping={latestPing} />
         ) : (
           <EmptyPingPreview />

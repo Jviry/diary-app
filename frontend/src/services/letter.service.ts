@@ -1,5 +1,5 @@
 import api from "@/lib/api";
-import type { Letter } from "@/types/letter.types";
+import type { CreateLetterRequest, Letter, PaginatedLetters } from "@/types/letter.types";
 
 
 export const letterService = {
@@ -7,5 +7,55 @@ export const letterService = {
     const { data } = await api.get('/letters/latest');
     return data.letter;
   },
+
+  async getReceived(page: number = 1, limit: number = 6, unreadOnly: boolean = false): Promise<PaginatedLetters> {
+    const { data } = await api.get('/letters/received', {
+      params: { page, limit, unreadOnly }
+
+    });
+    return {
+      letters: data.letters,
+      pagination: data.pagination
+    };
+  },
+
+  async getSent(page: number = 1, limit: number = 6) {
+    const { data } = await api.get('/letters/sent', {
+      params: { page, limit }
+    });
+    return data;
+  },
+
+  async getById(id: string): Promise<Letter | null> {
+    const { data } = await api.get(`/letters/${id}`);
+    return data.letter;
+  },
+
+  async delete(id: string): Promise<void> {
+    await api.delete(`/letters/${id}`);
+  },
+
+  async markAsRead(id: string): Promise<void> {
+    await api.patch(`/letters/${id}/read`);
+  },
+
+  async create(payload: CreateLetterRequest, files?: File[]): Promise<Letter> {
+    const formData = new FormData();
+
+    formData.append('toUserId', payload.toUserId);
+    formData.append('content', payload.content);
+    formData.append('title', payload.title);
+    if (payload.spotifyUrl) formData.append('spotifyUrl', payload.spotifyUrl);
+
+    if (files && files.length > 0) {
+      files.forEach(file => formData.append('images', file));
+    }
+
+    const { data } = await api.post('/letters', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+
+    return data.letter;
+  }
 
 }
