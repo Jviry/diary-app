@@ -10,7 +10,7 @@ export class UserUsecase {
   async findById(id: string): Promise<UserDTO | null> {
     const user = await this.repo.findById(id);
     if (!user) return null;
-    return { id: user.id, email: user.email, name: user.name, partnerId: user.partnerId };
+    return { id: user.id, email: user.email, name: user.name, partner: user.partner ?? null };
   }
 
   async register(input: RegisterRequestDTO): Promise<AuthResponseDTO> {
@@ -30,22 +30,24 @@ export class UserUsecase {
       { expiresIn: '7d' }
     );
 
-    return { user: { id: user.id, email: user.email, name: user.name, partnerId: user.partnerId }, token };
+    return { user: { id: user.id, email: user.email, name: user.name, partner: null }, token };
   }
 
   async login(input: LoginRequestDTO): Promise<AuthResponseDTO> {
-    const user = await this.repo.findByEmail(input.email);
-    if (!user) throw new DomainError('Invalid email or password');
+    const authUser = await this.repo.findByEmail(input.email);
+    if (!authUser) throw new DomainError('Invalid email or password');
 
-    const isValid = await bcrypt.compare(input.password, user.password);
+    const isValid = await bcrypt.compare(input.password, authUser.password);
     if (!isValid) throw new DomainError('Invalid email or password');
 
     const token = jwt.sign(
-      { userId: user.id },
+      { userId: authUser.id },
       process.env.JWT_SECRET!,
       { expiresIn: '7d' }
     );
 
-    return { user: { id: user.id, email: user.email, name: user.name, partnerId: user.partnerId }, token };
+    const user = await this.repo.findById(authUser.id);
+
+    return { user: { id: user!.id, email: user!.email, name: user!.name, partner: user!.partner }, token };
   }
 }

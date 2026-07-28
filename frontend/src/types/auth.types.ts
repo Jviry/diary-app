@@ -2,7 +2,11 @@ export interface User {
   id: string
   email: string
   name: string
-  partnerId: string | null
+  partner: {
+    id: string
+    email: string
+    name: string
+  } | null
 }
 
 export interface AuthResponse {

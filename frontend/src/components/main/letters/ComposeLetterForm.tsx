@@ -14,7 +14,7 @@ export const ComposeLetterForm = ({ user }: ComposeLetterFormProps) => {
   const { createLetter, loading: isSubmitting, error } = useCreateLetter();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [recipientId, setRecipientId] = useState(user.partnerId || user.id);
+  const [recipientId, setRecipientId] = useState(user.partner?.id ?? user.id);
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [spotifyUrl, setSpotifyUrl] = useState('');
@@ -32,8 +32,8 @@ export const ComposeLetterForm = ({ user }: ComposeLetterFormProps) => {
       };
       reader.readAsDataURL(file);
     });
-  };
 
+  };
   const removeImage = (index: number) => {
     setImages(prev => prev.filter((_, i) => i !== index));
     setImagePreviews(prev => prev.filter((_, i) => i !== index));
@@ -83,8 +83,8 @@ export const ComposeLetterForm = ({ user }: ComposeLetterFormProps) => {
           onChange={(e) => setRecipientId(e.target.value)}
           className="flex items-center gap-2 rounded-xl bg-[#e9e9dd] px-3 py-1 font-[family-name:var(--font-garamond)] text-[16px] font-bold text-[#570013] focus:outline-none"
         >
-          {user.partnerId && (
-            <option value={user.partnerId}>Partner</option>
+          {user.partner && (
+            <option value={user.partner.id}>Partner</option>
           )}
           <option value={user.id}>Myself</option>
         </select>
