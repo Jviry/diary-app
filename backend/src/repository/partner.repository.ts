@@ -23,7 +23,18 @@ export class PartnerRepository implements IPartnerRepository {
   }
 
   async findPendingReceived(toUserId: string) {
-    return this.prisma.partnerRequest.findMany({ where: { toUserId, status: PartnerRequestStatus.PENDING } });
+    return this.prisma.partnerRequest.findMany({
+      where: { toUserId, status: PartnerRequestStatus.PENDING },
+      include: {
+        fromUser: {
+          select: { id: true, name: true }
+        },
+        toUser: {
+          select: { id: true, name: true }
+        }
+      }
+
+    });
   }
 
   async findById(id: string) {
