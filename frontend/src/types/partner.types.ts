@@ -4,4 +4,12 @@ export interface PartnerRequest {
   createdAt: string
   fromUserId: string
   toUserId: string
+  fromUser: {
+    id: string
+    name: string
+  }
+  toUser: {
+    id: string
+    name: string
+  }
 }
