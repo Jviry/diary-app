@@ -51,9 +51,7 @@ export const letterService = {
       files.forEach(file => formData.append('images', file));
     }
 
-    const { data } = await api.post('/letters', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' }
-    });
+    const { data } = await api.post('/letters', formData);
 
     return data.letter;
   }
