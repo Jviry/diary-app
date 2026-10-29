@@ -1,55 +1,186 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCreateLetter } from '@/hooks/letter/useCreateLetter';
+import { useLetterDraft, type LetterDraftController } from '@/hooks/letter/useLetterDraft';
 import type { User } from '@/types/auth.types';
+import type { LetterDraft } from '@/types/letter.types';
 import { getErrorMessage } from '@/lib/errors';
+import { PageLoader } from '@/components/ui/PageLoader';
+import { Spinner } from '@/components/ui/Spinner';
 
 interface ComposeLetterFormProps {
   user: User;
 }
 
+interface ComposeLetterEditorProps extends ComposeLetterFormProps {
+  initialDraft: LetterDraft | null;
+  autosave: LetterDraftController;
+}
+
+const readFileAsDataUrl = (file: File): Promise<string> =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result as string);
+    reader.onerror = () => reject(reader.error ?? new Error('Failed to read image'));
+    reader.readAsDataURL(file);
+  });
+
+const readFiles = (files: File[]): Promise<string[]> =>
+  Promise.all(files.map(readFileAsDataUrl));
+
+const serializeDraft = (
+  draft: Pick<LetterDraft, 'recipientId' | 'title' | 'content' | 'spotifyUrl' | 'images'>
+) =>
+  JSON.stringify({
+    recipientId: draft.recipientId,
+    title: draft.title,
+    content: draft.content,
+    spotifyUrl: draft.spotifyUrl,
+    images: draft.images.map((file) => [file.name, file.size, file.lastModified, file.type]),
+  });
+
 export const ComposeLetterForm = ({ user }: ComposeLetterFormProps) => {
+  const { restoredDraft, isLoadingDraft, ...autosave } = useLetterDraft(user.id);
+
+  if (isLoadingDraft) {
+    return <PageLoader label="Checking for a saved draft..." />;
+  }
+
+  return <ComposeLetterEditor user={user} initialDraft={restoredDraft} autosave={autosave} />;
+};
+
+const ComposeLetterEditor = ({ user, initialDraft, autosave }: ComposeLetterEditorProps) => {
   const router = useRouter();
   const { createLetter, loading: isSubmitting, error } = useCreateLetter();
+  const {
+    status: draftStatus,
+    queueSave,
+    saveNow,
+    discardDraft,
+    suspend,
+    resume,
+  } = autosave;
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [recipientId, setRecipientId] = useState(user.partner?.id ?? user.id);
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
-  const [spotifyUrl, setSpotifyUrl] = useState('');
-  const [images, setImages] = useState<File[]>([]);
+  const defaultRecipientId = user.partner?.id ?? user.id;
+  const restoredRecipientId =
+    initialDraft &&
+    (initialDraft.recipientId === user.id || initialDraft.recipientId === user.partner?.id)
+      ? initialDraft.recipientId
+      : defaultRecipientId;
+
+  const [recipientId, setRecipientId] = useState(restoredRecipientId);
+  const [title, setTitle] = useState(initialDraft?.title ?? '');
+  const [content, setContent] = useState(initialDraft?.content ?? '');
+  const [spotifyUrl, setSpotifyUrl] = useState(initialDraft?.spotifyUrl ?? '');
+  const [images, setImages] = useState<File[]>(initialDraft?.images ?? []);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [localError, setLocalError] = useState('');
   const [isDragging, setIsDragging] = useState(false);
+  const [hasRestoredDraft, setHasRestoredDraft] = useState(Boolean(initialDraft));
 
-  const addFiles = (files: File[]) => {
-    files.forEach((file) => {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImages((prev) => [...prev, file]);
-        setImagePreviews((prev) => [...prev, reader.result as string]);
-      };
-      reader.readAsDataURL(file);
+  const draftSnapshotRef = useRef(initialDraft ? serializeDraft(initialDraft) : '');
+
+  useEffect(() => {
+    if (!initialDraft || initialDraft.images.length === 0) return;
+
+    let cancelled = false;
+    void readFiles(initialDraft.images)
+      .then((previews) => {
+        if (!cancelled) setImagePreviews(previews);
+      })
+      .catch(() => {
+        if (!cancelled) setLocalError('Some restored photos could not be previewed.');
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [initialDraft]);
+
+  useEffect(() => {
+    if (isSubmitting) return;
+
+    const hasContent =
+      title.trim() !== '' ||
+      content.trim() !== '' ||
+      spotifyUrl.trim() !== '' ||
+      images.length > 0;
+
+    if (!hasContent) {
+      draftSnapshotRef.current = '';
+      void discardDraft();
+      return;
+    }
+
+    const snapshot = serializeDraft({ recipientId, title, content, spotifyUrl, images });
+    if (snapshot === draftSnapshotRef.current) return;
+
+    draftSnapshotRef.current = snapshot;
+    queueSave({
+      version: 1,
+      userId: user.id,
+      recipientId,
+      title,
+      content,
+      spotifyUrl,
+      images,
+      updatedAt: Date.now(),
     });
+  }, [
+    title,
+    content,
+    spotifyUrl,
+    recipientId,
+    images,
+    isSubmitting,
+    user.id,
+    queueSave,
+    discardDraft,
+  ]);
+
+  const addFiles = async (files: File[]) => {
+    if (files.length === 0) return;
+
+    try {
+      const previews = await readFiles(files);
+      setImages((prev) => [...prev, ...files]);
+      setImagePreviews((prev) => [...prev, ...previews]);
+    } catch {
+      setLocalError('One of those photos could not be added. Please try another.');
+    }
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    addFiles(e.target.files ? Array.from(e.target.files) : []);
+    void addFiles(e.target.files ? Array.from(e.target.files) : []);
     e.target.value = '';
   };
 
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     setIsDragging(false);
-    addFiles(Array.from(e.dataTransfer.files).filter((file) => file.type.startsWith('image/')));
+    void addFiles(Array.from(e.dataTransfer.files).filter((file) => file.type.startsWith('image/')));
   };
 
   const removeImage = (index: number) => {
     setImages((prev) => prev.filter((_, i) => i !== index));
     setImagePreviews((prev) => prev.filter((_, i) => i !== index));
     if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const handleStartFresh = () => {
+    setRecipientId(defaultRecipientId);
+    setTitle('');
+    setContent('');
+    setSpotifyUrl('');
+    setImages([]);
+    setImagePreviews([]);
+    setLocalError('');
+    setHasRestoredDraft(false);
+    draftSnapshotRef.current = '';
+    void discardDraft();
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -65,6 +196,8 @@ export const ComposeLetterForm = ({ user }: ComposeLetterFormProps) => {
       return;
     }
 
+    await suspend();
+
     try {
       await createLetter(
         {
@@ -75,8 +208,12 @@ export const ComposeLetterForm = ({ user }: ComposeLetterFormProps) => {
         },
         images.length > 0 ? images : undefined
       );
+
+      await discardDraft();
+      setHasRestoredDraft(false);
       router.push('/letters');
     } catch (err) {
+      resume();
       setLocalError(getErrorMessage(err, 'Failed to send letter. Please try again.'));
     }
   };
@@ -88,6 +225,21 @@ export const ComposeLetterForm = ({ user }: ComposeLetterFormProps) => {
 
   return (
     <form onSubmit={handleSubmit} className="flex w-full max-w-[896px] flex-col gap-8">
+      {hasRestoredDraft && (
+        <div className="animate-fade-in flex flex-wrap items-center justify-between gap-3 rounded-lg border border-line/40 bg-panel px-4 py-3">
+          <p className="font-[family-name:var(--font-inter)] text-[12px] text-foreground">
+            Draft restored from your last visit.
+          </p>
+          <button
+            type="button"
+            onClick={handleStartFresh}
+            className="focus-ring rounded font-[family-name:var(--font-inter)] text-[11px] font-semibold uppercase tracking-[0.88px] text-primary transition-colors duration-200 hover:text-primary-deep hover:underline"
+          >
+            Start fresh
+          </button>
+        </div>
+      )}
+
       <div className="flex flex-wrap items-center gap-3">
         <label htmlFor="recipient" className="font-[family-name:var(--font-inter)] text-[13px] font-medium tracking-[0.65px] text-foreground">
           TO:
@@ -214,11 +366,36 @@ export const ComposeLetterForm = ({ user }: ComposeLetterFormProps) => {
       )}
 
       <div className="flex w-full flex-col-reverse items-stretch gap-4 border-t border-line/30 pt-5 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-1 font-[family-name:var(--font-inter)] text-[11px] font-semibold tracking-[0.88px] text-foreground/60">
-          <svg width="9" height="9" viewBox="0 0 9 9" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-            <path d="M4.5 9C3.35 9 2.34792 8.61875 1.49375 7.85625C0.639583 7.09375 0.15 6.14167 0.025 5H1.05C1.16667 5.86667 1.55208 6.58333 2.20625 7.15C2.86042 7.71667 3.625 8 4.5 8C5.475 8 6.30208 7.66042 6.98125 6.98125C7.66042 6.30208 8 5.475 8 4.5C8 3.525 7.66042 2.69792 6.98125 2.01875C6.30208 1.33958 5.475 1 4.5 1C3.925 1 3.3875 1.13333 2.8875 1.4C2.3875 1.66667 1.96667 2.03333 1.625 2.5H3V3.5H0V0.5H1V1.675C1.425 1.14167 1.94375 0.729167 2.55625 0.4375C3.16875 0.145833 3.81667 0 4.5 0C5.125 0 5.71042 0.11875 6.25625 0.35625C6.80208 0.59375 7.27708 0.914583 7.68125 1.31875C8.08542 1.72292 8.40625 2.19792 8.64375 2.74375C8.88125 3.28958 9 3.875 9 4.5C9 5.125 8.88125 5.71042 8.64375 6.25625C8.40625 6.80208 8.08542 7.27708 7.68125 7.68125C7.27708 8.08542 6.80208 8.40625 6.25625 8.64375C5.71042 8.88125 5.125 9 4.5 9ZM5.9 6.6L4 4.7V2H5V4.3L6.6 5.9L5.9 6.6Z" fill="#584141" fillOpacity="0.6" />
-          </svg>
-          Your letter stays between you and your partner.
+        <div
+          aria-live="polite"
+          className={`flex items-center gap-1 font-[family-name:var(--font-inter)] text-[11px] font-semibold tracking-[0.88px] ${
+            draftStatus === 'error' ? 'text-primary' : 'text-foreground/60'
+          }`}
+        >
+          {draftStatus === 'saving' ? (
+            <>
+              <Spinner className="h-3 w-3" />
+              <span>Auto-saving…</span>
+            </>
+          ) : draftStatus === 'error' ? (
+            <>
+              <span>Couldn&apos;t save your draft.</span>
+              <button
+                type="button"
+                onClick={saveNow}
+                className="focus-ring rounded underline underline-offset-2 transition-colors duration-200 hover:text-primary"
+              >
+                Retry
+              </button>
+            </>
+          ) : draftStatus === 'saved' ? (
+            <>
+              <svg width="9" height="9" viewBox="0 0 9 9" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M3.2 7.2L0.8 4.8L1.6 4L3.2 5.6L7.4 1.4L8.2 2.2L3.2 7.2Z" fill="#2D5016" />
+              </svg>
+              <span>Saved</span>
+            </>
+          ) : null}
         </div>
         <button
           type="submit"

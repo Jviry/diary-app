@@ -27,6 +27,17 @@ export interface CreateLetterRequest {
   spotifyUrl?: string
 }
 
+export interface LetterDraft {
+  version: 1
+  userId: string
+  recipientId: string
+  title: string
+  content: string
+  spotifyUrl: string
+  images: File[]
+  updatedAt: number
+}
+
 export interface Pagination {
   page: number
   limit: number
