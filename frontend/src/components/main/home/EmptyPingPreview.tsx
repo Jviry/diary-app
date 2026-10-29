@@ -1,15 +1,15 @@
-
 export const EmptyPingPreview = () => {
   return (
-    <div className="self-stretch h-32 pt-6 pb-7 inline-flex flex-col justify-start items-center gap-1.5">
-      <div className="self-stretch pb-[5px] flex flex-col justify-start items-center">
-        <img
-          src="/icons/empty-ping.svg
-          "/>
-      </div>
-      <div className="self-stretch flex flex-col justify-start items-center">
-        <div className="text-center justify-center text-stone-700/60 text-base font-normal font-[family-name:var(--font-garamond)] leading-6">No pings yet today.</div>
-      </div>
+    <div className="flex w-full flex-col items-center gap-2 py-6 text-center">
+      <img
+        src="/icons/empty-ping.svg"
+        alt=""
+        aria-hidden="true"
+        className="mb-1 h-10 w-10 opacity-70"
+      />
+      <p className="font-[family-name:var(--font-garamond)] text-base leading-relaxed text-foreground/60">
+        No pings yet today.
+      </p>
     </div>
   );
-}
+};

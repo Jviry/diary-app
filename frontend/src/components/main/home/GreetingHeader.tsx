@@ -6,14 +6,13 @@ export const GreetingHeader = () => {
   const { user } = useAuth();
 
   return (
-    <section className="flex flex-col items-start gap-2 relative self-stretch w-full flex-[0_0_auto]">
-      <div className="flex flex-col items-start relative self-stretch w-full flex-[0_0_auto]">
-        <h1 className="relative flex items-center self-stretch mt-[-1.00px] font-[family-name:var(--font-playfair)] font-normal italic text-[#570013] text-5xl tracking-[-0.96px] leading-[52.8px]">
-          Hello, {user?.name}
-        </h1>
-      </div>
-      <div className="relative self-stretch w-full h-8 opacity-80" />
+    <section className="flex w-full animate-fade-up flex-col items-start gap-2">
+      <h1 className="break-words font-[family-name:var(--font-playfair)] text-4xl font-normal italic leading-tight tracking-[-0.96px] text-primary sm:text-5xl">
+        Hello, {user?.name}
+      </h1>
+      <p className="font-[family-name:var(--font-garamond)] text-[17px] italic text-foreground/70 sm:text-lg">
+        A quiet place for the words that matter.
+      </p>
     </section>
   );
-
-}
+};

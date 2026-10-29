@@ -8,6 +8,7 @@ import { useAuth } from '@/context/auth.context';
 import { letterService } from '@/services/letter.service';
 import { Letter, LetterImage } from '@/types/letter.types';
 import { WriteLetterFab } from './WriteLetterFab';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 
 interface LetterProps {
   letter: Letter;
@@ -19,6 +20,7 @@ export const LetterComponent = ({ letter }: LetterProps) => {
 
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
   const [activeImageIndex, setActiveImageIndex] = useState<number | null>(null);
 
   const isSender = user?.id === letter.fromUserId;
@@ -37,14 +39,14 @@ export const LetterComponent = ({ letter }: LetterProps) => {
 
   const handleDelete = async () => {
     try {
+      setDeleteError(null);
       setIsDeleting(true);
       await letterService.delete(letter.id);
       router.push('/letters');
     } catch (err) {
       console.error('Failed to delete letter:', err);
-      alert('Failed to delete letter. Please try again.');
+      setDeleteError('Failed to delete letter. Please try again.');
       setIsDeleting(false);
-      setShowDeleteConfirm(false);
     }
   };
 
@@ -70,6 +72,16 @@ export const LetterComponent = ({ letter }: LetterProps) => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [activeImageIndex, handleNextImage, handlePrevImage]);
 
+  useEffect(() => {
+    if (activeImageIndex === null) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [activeImageIndex]);
+
   const rotationClasses = [
     'rotate-[-3deg]',
     'rotate-[4deg]',
@@ -79,15 +91,14 @@ export const LetterComponent = ({ letter }: LetterProps) => {
   ];
 
   return (
-    <div className="min-h-screen bg-[#FBFAEE] py-10 px-4 sm:px-6 lg:px-8 relative flex flex-col items-center">
-      <div className="w-full max-w-4xl flex flex-col gap-8 relative">
-
-        <div className="flex items-center justify-between w-full">
+    <div className="relative flex w-full flex-col items-center px-5 py-8 sm:px-6 sm:py-10 lg:px-8">
+      <div className="flex w-full max-w-4xl flex-col gap-8">
+        <div className="flex items-center justify-between gap-4">
           <Link
             href="/letters"
-            className="flex items-center gap-2 text-[#584141] hover:text-[#570013] transition-colors font-[family-name:var(--font-inter)] text-xs font-semibold tracking-wider uppercase"
+            className="focus-ring inline-flex items-center gap-2 rounded-sm font-[family-name:var(--font-inter)] text-xs font-semibold uppercase tracking-wider text-foreground transition-colors duration-200 hover:text-primary"
           >
-            <svg width="9" height="15" viewBox="0 0 9 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg width="9" height="15" viewBox="0 0 9 15" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
               <path d="M7.5 15L0 7.5L7.5 0L8.83125 1.33125L2.6625 7.5L8.83125 13.6687L7.5 15Z" fill="currentColor" />
             </svg>
             BACK TO ARCHIVE
@@ -95,10 +106,14 @@ export const LetterComponent = ({ letter }: LetterProps) => {
 
           {isSender && (
             <button
-              onClick={() => setShowDeleteConfirm(true)}
-              className="flex items-center gap-2 text-[#584141]/60 hover:text-[#570013] transition-colors font-[family-name:var(--font-inter)] text-xs font-semibold tracking-wider uppercase cursor-pointer"
+              type="button"
+              onClick={() => {
+                setDeleteError(null);
+                setShowDeleteConfirm(true);
+              }}
+              className="focus-ring flex items-center gap-2 rounded-sm font-[family-name:var(--font-inter)] text-xs font-semibold uppercase tracking-wider text-foreground/60 transition-colors duration-200 hover:text-primary"
             >
-              <svg width="12" height="14" viewBox="0 0 12 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <svg width="12" height="14" viewBox="0 0 12 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                 <path
                   d="M2.25 13.5C1.8375 13.5 1.48438 13.3531 1.19062 13.0594C0.896875 12.7656 0.75 12.4125 0.75 12V2.25H0V0.75H3.75V0H8.25V0.75H12V2.25H11.25V12C11.25 12.4125 11.1031 12.7656 10.8094 13.0594C10.5156 13.3531 10.1625 13.5 9.75 13.5H2.25ZM9.75 2.25H2.25V12H9.75V2.25ZM3.75 10.5H5.25V3.75H3.75V10.5ZM6.75 10.5H8.25V3.75H6.75V10.5ZM2.25 2.25V12V2.25Z"
                   fill="currentColor"
@@ -109,76 +124,43 @@ export const LetterComponent = ({ letter }: LetterProps) => {
           )}
         </div>
 
-        {showDeleteConfirm && (
-          <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
-            <div className="bg-white rounded-lg p-6 max-w-md w-full shadow-2xl border border-[#e0bfbf4d] flex flex-col gap-4">
-              <h3 className="font-[family-name:var(--font-playfair)] text-2xl text-[#570013]">
-                Delete Letter?
-              </h3>
-              <p className="font-[family-name:var(--font-garamond)] text-base text-[#584141]">
-                Are you sure you want to delete this letter? This action cannot be undone.
-              </p>
-              <div className="flex justify-end gap-3 pt-2">
-                <button
-                  onClick={() => setShowDeleteConfirm(false)}
-                  disabled={isDeleting}
-                  className="px-4 py-2 text-sm font-medium text-[#584141] hover:bg-gray-100 rounded-md transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleDelete}
-                  disabled={isDeleting}
-                  className="px-4 py-2 text-sm font-medium text-white bg-[#570013] hover:bg-[#3d000d] rounded-md transition-colors disabled:opacity-50"
-                >
-                  {isDeleting ? 'Deleting...' : 'Delete'}
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        <article className="w-full bg-white rounded-sm border border-[#e0bfbf4d] shadow-[0_4px_20px_-2px_rgba(107,94,81,0.10),0_2px_10px_-2px_rgba(107,94,81,0.05)] p-8 sm:p-16 flex flex-col gap-10 relative">
-
-          <header className="flex flex-col sm:flex-row sm:items-end justify-between border-b border-[#e0bfbf33] pb-8 gap-4">
-            <div className="flex flex-col gap-2">
-              <h1 className="font-[family-name:var(--font-playfair)] text-3xl sm:text-5xl text-[#570013] font-normal leading-tight">
+        <article className="relative flex w-full animate-fade-up flex-col gap-8 rounded-2xl border border-line/40 bg-paper p-6 shadow-[0_4px_20px_-2px_rgba(107,94,81,0.10),0_2px_10px_-2px_rgba(107,94,81,0.05)] sm:gap-10 sm:p-10 lg:p-16">
+          <header className="flex flex-col justify-between gap-4 border-b border-line/30 pb-6 sm:flex-row sm:items-end sm:pb-8">
+            <div className="flex min-w-0 flex-col gap-2">
+              <h1 className="break-words font-[family-name:var(--font-playfair)] text-3xl font-normal leading-tight text-primary sm:text-4xl lg:text-5xl">
                 {letter.title}
               </h1>
-              <p className="font-[family-name:var(--font-garamond)] text-lg text-[#584141] italic">
+              <p className="break-words font-[family-name:var(--font-garamond)] text-lg italic text-foreground">
                 Dearest, from {letter.fromUser?.name || 'Someone Special'}
               </p>
             </div>
-            <div className="self-start sm:self-auto bg-[#E9E9DD] px-4 py-1.5 rounded-full">
-              <span className="font-[family-name:var(--font-inter)] text-xs font-medium tracking-wide text-[#584141]">
+            <div className="self-start rounded-full bg-panel-deep px-4 py-1.5 sm:self-auto">
+              <span className="font-[family-name:var(--font-inter)] text-xs font-medium tracking-wide text-foreground">
                 {format(new Date(letter.createdAt), 'MMMM d, yyyy')}
               </span>
             </div>
           </header>
 
-          <div className="font-[family-name:var(--font-garamond)] text-lg text-[#1B1C15] leading-relaxed whitespace-pre-line flex flex-col gap-6">
+          <div className="flex flex-col gap-6 whitespace-pre-line break-words font-[family-name:var(--font-garamond)] text-lg leading-relaxed text-ink">
             {letter.content}
 
-            <div className="pt-6 flex flex-col gap-1">
-              <p className="italic text-[#1B1C15]">Yours always,</p>
-              <p className="font-[family-name:var(--font-playfair)] text-3xl text-[#570013]">
+            <div className="flex flex-col gap-1 pt-6">
+              <p className="italic text-ink">Yours always,</p>
+              <p className="break-words font-[family-name:var(--font-playfair)] text-3xl text-primary">
                 {letter.fromUser?.name || 'Elena'}
               </p>
             </div>
           </div>
 
           {(letter.spotifyTrackId || images.length > 0) && (
-            <div className="pt-6 border-t border-[#e0bfbf33] flex flex-col md:flex-row items-start justify-between gap-8 w-full">
-
+            <div className="flex w-full flex-col items-start justify-between gap-8 border-t border-line/30 pt-6 md:flex-row">
               {images.length > 0 && (
-                <div className="flex flex-col gap-3 w-full md:w-auto">
-                  <div className="flex items-center gap-2">
-                    <span className="font-[family-name:var(--font-inter)] text-xs font-semibold tracking-wider text-[#584141]/70 uppercase">
-                      ATTACHED MEMORIES ({images.length})
-                    </span>
-                  </div>
+                <div className="flex w-full flex-col gap-3 md:w-auto">
+                  <span className="font-[family-name:var(--font-inter)] text-xs font-semibold uppercase tracking-wider text-foreground/70">
+                    ATTACHED MEMORIES ({images.length})
+                  </span>
 
-                  <div className="relative h-[290px] w-full sm:w-[260px] flex items-center justify-center">
+                  <div className="relative flex h-[290px] w-full items-center justify-center sm:w-[260px]">
                     {images.map((img, idx) => {
                       const rotation = rotationClasses[idx % rotationClasses.length];
                       const offsetStyle = {
@@ -188,18 +170,20 @@ export const LetterComponent = ({ letter }: LetterProps) => {
                       };
 
                       return (
-                        <div
+                        <button
                           key={img.id || idx}
+                          type="button"
                           onClick={() => setActiveImageIndex(idx)}
                           style={offsetStyle}
-                          className={`absolute w-48 sm:w-52 p-3 bg-white border border-gray-200 shadow-xl rounded-sm transition-all duration-300 transform hover:scale-105 hover:z-30 cursor-pointer ${rotation}`}
+                          className={`focus-ring absolute w-48 rounded-sm border border-line/30 bg-paper p-3 shadow-xl transition-all duration-300 hover:z-30 hover:scale-105 sm:w-52 ${rotation}`}
+                          aria-label={`Open memory ${idx + 1}`}
                         >
-                          <div className="w-full h-52 bg-[#E9E9DD] overflow-hidden relative border border-gray-100 rounded-xs flex items-center justify-center">
+                          <span className="relative flex h-52 w-full items-center justify-center overflow-hidden rounded-sm border border-line/20 bg-panel-deep">
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img
                               src={getImageUrl(img)}
                               alt={`Letter attachment ${idx + 1}`}
-                              className="w-full h-full object-cover"
+                              className="h-full w-full object-cover"
                               onError={(e) => {
                                 (e.target as HTMLImageElement).style.display = 'none';
                                 const parent = (e.target as HTMLImageElement).parentElement;
@@ -211,35 +195,33 @@ export const LetterComponent = ({ letter }: LetterProps) => {
                                 }
                               }}
                             />
-                          </div>
-                          <div className="pt-2 text-center">
-                            <span className="font-[family-name:var(--font-garamond)] text-xs italic text-gray-500">
-                              Memory #{idx + 1}
-                            </span>
-                          </div>
-                        </div>
+                          </span>
+                          <span className="block pt-2 text-center font-[family-name:var(--font-garamond)] text-xs italic text-muted">
+                            Memory #{idx + 1}
+                          </span>
+                        </button>
                       );
                     })}
 
                     {images.length > 1 && (
-                      <div className="absolute -bottom-2 right-0 bg-[#570013] text-white text-[10px] uppercase font-[family-name:var(--font-inter)] tracking-wider px-2.5 py-1 rounded-full shadow-md z-40">
+                      <span className="absolute -bottom-2 right-0 z-40 rounded-full bg-primary px-2.5 py-1 font-[family-name:var(--font-inter)] text-[10px] uppercase tracking-wider text-white shadow-md">
                         Click to view all {images.length}
-                      </div>
+                      </span>
                     )}
                   </div>
                 </div>
               )}
 
               {letter.spotifyTrackId && (
-                <div className="flex flex-col gap-3 w-full md:max-w-xs">
+                <div className="flex w-full flex-col gap-3 md:max-w-xs">
                   <div className="flex items-center gap-2">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src="/icons/music.svg" alt="" className="w-3.5 h-4" />
-                    <span className="font-[family-name:var(--font-inter)] text-xs font-semibold tracking-wider text-[#570013] uppercase">
+                    <img src="/icons/music.svg" alt="" aria-hidden="true" className="h-4 w-3.5" />
+                    <span className="font-[family-name:var(--font-inter)] text-xs font-semibold uppercase tracking-wider text-primary">
                       THE ATMOSPHERE
                     </span>
                   </div>
-                  <div className="w-full rounded-md overflow-hidden shadow-sm border border-[#5700131a]">
+                  <div className="w-full overflow-hidden rounded-lg border border-primary/10 shadow-sm">
                     <iframe
                       src={`https://open.spotify.com/embed/track/${letter.spotifyTrackId}`}
                       width="100%"
@@ -247,6 +229,7 @@ export const LetterComponent = ({ letter }: LetterProps) => {
                       style={{ border: 'none' }}
                       allow="encrypted-media"
                       loading="lazy"
+                      title="Spotify track attached to this letter"
                     />
                   </div>
                 </div>
@@ -254,44 +237,66 @@ export const LetterComponent = ({ letter }: LetterProps) => {
             </div>
           )}
 
-          <div className="flex justify-center opacity-25 pt-4">
-            <div className="w-32 h-[1px] bg-[#570013]" />
+          <div className="flex justify-center pt-4 opacity-25">
+            <div className="h-px w-32 bg-primary" />
           </div>
-
         </article>
 
         <WriteLetterFab />
       </div>
 
-      {activeImageIndex !== null && images.length > 0 && (
-        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex flex-col items-center justify-center p-4">
+      <ConfirmDialog
+        open={showDeleteConfirm}
+        title="Delete Letter?"
+        description="Are you sure you want to delete this letter? This action cannot be undone."
+        confirmLabel="Delete Letter"
+        busy={isDeleting}
+        error={deleteError}
+        onConfirm={handleDelete}
+        onClose={() => {
+          setShowDeleteConfirm(false);
+          setDeleteError(null);
+        }}
+      />
 
+      {activeImageIndex !== null && images.length > 0 && (
+        <div
+          className="fixed inset-0 z-[60] flex animate-fade-in flex-col items-center justify-center bg-ink/85 p-4 backdrop-blur-md"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Letter image viewer"
+          onClick={() => setActiveImageIndex(null)}
+        >
           <button
+            type="button"
             onClick={() => setActiveImageIndex(null)}
-            className="absolute top-6 right-6 text-white/80 hover:text-white p-2 rounded-full hover:bg-white/10 transition-colors cursor-pointer"
-            aria-label="Close modal"
+            className="focus-ring absolute right-4 top-4 rounded-full p-2 text-white/80 transition-colors duration-200 hover:bg-white/10 hover:text-white sm:right-6 sm:top-6"
+            aria-label="Close image viewer"
           >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
               <path d="M18 6L6 18M6 6l12 12" />
             </svg>
           </button>
 
-          <div className="relative flex items-center justify-center w-full max-w-2xl max-h-[85vh]">
-
+          <div
+            className="relative flex max-h-[85vh] w-full max-w-2xl items-center justify-center animate-scale-in"
+            onClick={(event) => event.stopPropagation()}
+          >
             {images.length > 1 && (
               <button
+                type="button"
                 onClick={handlePrevImage}
-                className="absolute left-2 sm:-left-12 z-10 text-white/80 hover:text-white bg-black/40 hover:bg-black/70 p-3 rounded-full transition-colors cursor-pointer"
+                className="focus-ring absolute left-2 z-10 rounded-full bg-ink/40 p-3 text-white/80 transition-all duration-200 hover:bg-ink/70 hover:text-white active:scale-90 sm:-left-12"
                 aria-label="Previous image"
               >
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
                   <path d="M15 18l-6-6 6-6" />
                 </svg>
               </button>
             )}
 
-            <div className="bg-white p-4 sm:p-6 rounded-sm border border-gray-200 shadow-2xl max-w-full flex flex-col items-center gap-4">
-              <div className="relative min-h-[300px] max-h-[65vh] w-full flex items-center justify-center bg-gray-900 rounded-sm overflow-hidden">
+            <div className="flex max-w-full flex-col items-center gap-4 rounded-lg border border-line/30 bg-paper p-4 shadow-2xl sm:p-6">
+              <div className="relative flex max-h-[65vh] min-h-[300px] w-full items-center justify-center overflow-hidden rounded-sm bg-ink">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={getImageUrl(images[activeImageIndex])}
@@ -310,9 +315,9 @@ export const LetterComponent = ({ letter }: LetterProps) => {
                 />
               </div>
 
-              <div className="flex items-center justify-between w-full text-[#584141] font-[family-name:var(--font-garamond)] italic text-sm pt-1">
+              <div className="flex w-full items-center justify-between gap-4 pt-1 font-[family-name:var(--font-garamond)] text-sm italic text-foreground">
                 <span>Memory #{activeImageIndex + 1}</span>
-                <span className="font-[family-name:var(--font-inter)] text-xs uppercase tracking-wider text-gray-500">
+                <span className="font-[family-name:var(--font-inter)] text-xs uppercase tracking-wider text-muted">
                   {activeImageIndex + 1} of {images.length}
                 </span>
               </div>
@@ -320,11 +325,12 @@ export const LetterComponent = ({ letter }: LetterProps) => {
 
             {images.length > 1 && (
               <button
+                type="button"
                 onClick={handleNextImage}
-                className="absolute right-2 sm:-right-12 z-10 text-white/80 hover:text-white bg-black/40 hover:bg-black/70 p-3 rounded-full transition-colors cursor-pointer"
+                className="focus-ring absolute right-2 z-10 rounded-full bg-ink/40 p-3 text-white/80 transition-all duration-200 hover:bg-ink/70 hover:text-white active:scale-90 sm:-right-12"
                 aria-label="Next image"
               >
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
                   <path d="M9 18l6-6-6-6" />
                 </svg>
               </button>

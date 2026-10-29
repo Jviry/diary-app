@@ -2,25 +2,25 @@ import Link from "next/link";
 
 export const EmptyLettersState = () => {
   return (
-    <div className="self-stretch min-h-96 py-20 inline-flex flex-col justify-center items-center">
-      <div className="size- pb-6 flex flex-col justify-start items-start">
-        <div className="size- opacity-40 flex flex-col justify-start items-center">
-          <img src='/icons/no-letter.svg' />
-        </div>
-      </div>
-      <div className="w-56 h-10 relative">
-        <div className="size- left-0 top-[-1px] absolute inline-flex flex-col justify-start items-center">
-          <div className="text-center justify-center text-stone-900 text-2xl font-semibold font-[family-name:var(--font-playfair)] leading-8">No letters found yet.</div>
-        </div>
-      </div>
-      <div className="size- pb-8 flex flex-col justify-start items-start">
-        <div className="size- flex flex-col justify-start items-center">
-          <div className="text-center justify-center text-stone-700 text-xl font-normal font-[family-name:var(--font-garamond)]  leading-8">Every story starts with a single word.</div>
-        </div>
-      </div>
-      <div className="size- px-8 py-3 bg-rose-950 rounded-xl flex flex-col justify-center items-center">
-        <Link href='/letters/new' className="text-center justify-center text-white text-xs font-medium font-[family-name:var(--font-inter)] leading-3 tracking-wide">Write Your First Letter</Link>
-      </div>
+    <div className="flex min-h-96 w-full animate-fade-up flex-col items-center justify-center gap-2 px-6 py-16 text-center">
+      <img
+        src="/icons/no-letter.svg"
+        alt=""
+        aria-hidden="true"
+        className="mb-4 h-20 w-20 opacity-40"
+      />
+      <h2 className="font-[family-name:var(--font-playfair)] text-2xl font-semibold leading-8 text-ink">
+        No letters found yet.
+      </h2>
+      <p className="mb-6 max-w-xs font-[family-name:var(--font-garamond)] text-lg leading-8 text-foreground/80 sm:text-xl">
+        Every story starts with a single word.
+      </p>
+      <Link
+        href="/letters/new"
+        className="focus-ring motion-press inline-flex items-center justify-center rounded-xl bg-primary px-6 py-3 font-[family-name:var(--font-inter)] text-xs font-medium tracking-wide text-white transition-colors duration-200 hover:bg-primary-deep"
+      >
+        Write Your First Letter
+      </Link>
     </div>
   );
-}
+};

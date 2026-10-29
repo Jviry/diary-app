@@ -4,10 +4,112 @@
   --font-playfair: var(--font-playfair);
   --font-garamond: var(--font-garamond);
   --font-inter: var(--font-inter);
-}
-@layer components {
+  --font-display: var(--font-playfair);
 
+  --color-background: #fbfaee;
+  --color-paper: #ffffff;
+  --color-foreground: #584141;
+  --color-ink: #1b1c15;
+  --color-primary: #570013;
+  --color-primary-deep: #800020;
+  --color-muted: #8c7071;
+  --color-line: #e0bfbf;
+  --color-panel: #f5f4e8;
+  --color-panel-deep: #efeee3;
+  --color-blush: #fbdbdb;
+  --color-accent: #fed65b;
+  --color-success: #2d5016;
+
+  --animate-fade-in: fade-in 0.35s ease-out both;
+  --animate-fade-up: fade-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-scale-in: scale-in 0.25s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-shimmer: shimmer 1.6s ease-in-out infinite;
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes scale-in {
+    from {
+      opacity: 0;
+      transform: scale(0.96);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes shimmer {
+    0%,
+    100% {
+      opacity: 0.55;
+    }
+    50% {
+      opacity: 1;
+    }
+  }
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    background-color: color-mix(in srgb, var(--color-primary) 18%, transparent);
+    color: var(--color-primary);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+      animation-delay: 0.01ms !important;
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@utility focus-ring {
+  @apply focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary;
+}
+
+@utility motion-press {
+  @apply transition-all duration-200 ease-out hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.99];
+}
+
+@layer components {
   .diary-focus {
-    @apply outline outline-2 outline-offset-2 outline-[#570013];
+    @apply outline-2 outline-offset-2 outline-primary;
   }
 }

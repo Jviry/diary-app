@@ -2,6 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
+import { cn } from "@/lib/utils";
+import { Logo } from "@/components/ui/Logo";
 
 const navigationItems = [
   { label: "Home", href: "/home" },
@@ -10,70 +13,127 @@ const navigationItems = [
   { label: "Profile", href: "/profile" },
 ];
 
+const isActivePath = (pathname: string, href: string) =>
+  pathname === href || pathname.startsWith(`${href}/`);
+
 export const Header = () => {
   const pathname = usePathname();
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setMenuOpen(false);
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [menuOpen]);
 
   return (
-    <header
-      className="sticky top-0 z-50 w-full bg-[#fbfaeecc] shadow-sm backdrop-blur-md"
-    >
-      <div className="mx-auto flex h-[74px] max-w-[1200px] items-center justify-between px-10">
-        <Link
-          href="#"
-          aria-label="D/ARY home"
-          className="relative w-[83.06px] h-[31.19px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#570013]"
-        >
-          <div className="absolute -top-px left-0 h-8 flex items-center font-[family-name:var(--font-playfair)] font-semibold text-[#570013] text-2xl tracking-[2.40px] leading-[31.2px] whitespace-nowrap">
-            D/ARY
-          </div>
-        </Link>
-        <nav
-          aria-label="Primary"
-          className="inline-flex items-center gap-6 relative flex-[0_0_auto]"
-        >
-          {navigationItems.map((item) => {
+    <header className="sticky top-0 z-50 w-full border-b border-line/20 bg-background/85 shadow-sm backdrop-blur-md">
+      <div className="mx-auto flex h-16 w-full max-w-[1200px] items-center justify-between gap-4 px-5 sm:h-[74px] sm:px-10 lg:px-16">
+        <Logo href="/home" />
 
-            const active = pathname === item.href;
+        <nav aria-label="Primary" className="hidden items-center gap-1 md:flex">
+          {navigationItems.map((item) => {
+            const active = isActivePath(pathname, item.href);
+
             return (
               <Link
                 key={item.label}
                 href={item.href}
                 aria-current={active ? "page" : undefined}
-                className={`inline-flex flex-col items-start relative flex-[0_0_auto] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#570013] transition-all duration-200 group
-                  ${active
-                    ? "pt-0 pb-1 px-0 border-b-2 border-[#570013]"
-                    : "pt-0 pb-1 px-0 border-b-2 border-transparent hover:border-[#57001366]"
-                  }`}
+                className={cn(
+                  "focus-ring relative rounded-lg px-3 py-2 font-[family-name:var(--font-garamond)] text-lg font-medium leading-8 tracking-[0] transition-colors duration-200",
+                  active
+                    ? "font-semibold text-primary after:absolute after:inset-x-3 after:bottom-0.5 after:h-0.5 after:rounded-full after:bg-primary"
+                    : "text-foreground hover:bg-panel/70 hover:text-primary"
+                )}
               >
-                <div
-                  className={`relative flex items-center w-fit transition-colors duration-200
-                    ${active ? "mt-[-2.00px]" : "mt-[-1.00px]"}
-                    ${active
-                      ? "font-[family-name:var(--font-garamond)] font-semibold text-[#570013]"
-                      : "font-[family-name:var(--font-garamond)] font-medium text-[#584141] hover:text-[#570013]"
-                    } text-xl tracking-[0] leading-8 whitespace-nowrap`}
-                >
-                  {item.label}
-                </div>
+                {item.label}
               </Link>
             );
           })}
         </nav>
-        <button
-          type="button"
-          aria-label="Settings"
-          className="flex-col justify-center pt-2 pb-[15px] px-2 inline-flex items-center relative flex-[0_0_auto] cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#570013]"
-        >
-          <div className="inline-flex items-start justify-center relative flex-[0_0_auto]">
-            <img
-              className="relative w-[18.79px] h-[19px]"
-              alt=""
-              aria-hidden="true"
-              src="/icons/settings.svg"
-            />
-          </div>
-        </button>
+
+        <div className="flex items-center gap-1">
+          <Link
+            href="/profile"
+            aria-label="Settings"
+            className="focus-ring hidden h-10 w-10 items-center justify-center rounded-full text-muted transition-all duration-200 hover:bg-panel hover:text-primary active:scale-95 sm:inline-flex"
+          >
+            <img className="h-[19px] w-[18.79px]" alt="" aria-hidden="true" src="/icons/settings.svg" />
+          </Link>
+
+          <button
+            type="button"
+            onClick={() => setMenuOpen((current) => !current)}
+            aria-label={menuOpen ? "Close menu" : "Open menu"}
+            aria-expanded={menuOpen}
+            aria-controls="mobile-navigation"
+            className="focus-ring inline-flex h-10 w-10 items-center justify-center rounded-full text-primary transition-colors duration-200 hover:bg-panel active:scale-95 md:hidden"
+          >
+            <span className="flex w-5 flex-col items-end gap-[5px]" aria-hidden="true">
+              <span
+                className={cn(
+                  "block h-0.5 w-5 rounded-full bg-primary transition-transform duration-200",
+                  menuOpen && "translate-y-[7px] rotate-45"
+                )}
+              />
+              <span
+                className={cn(
+                  "block h-0.5 w-5 rounded-full bg-primary transition-opacity duration-200",
+                  menuOpen && "opacity-0"
+                )}
+              />
+              <span
+                className={cn(
+                  "block h-0.5 w-5 rounded-full bg-primary transition-transform duration-200",
+                  menuOpen && "-translate-y-[7px] -rotate-45"
+                )}
+              />
+            </span>
+          </button>
+        </div>
+      </div>
+
+      <div
+        id="mobile-navigation"
+        inert={!menuOpen}
+        aria-hidden={!menuOpen}
+        className={cn(
+          "overflow-hidden border-line/20 bg-background/95 backdrop-blur-md transition-[max-height,opacity] duration-300 ease-out md:hidden",
+          menuOpen ? "max-h-96 border-t opacity-100" : "max-h-0 opacity-0"
+        )}
+      >
+        <nav aria-label="Mobile primary" className="mx-auto flex w-full max-w-[1200px] flex-col gap-1 px-5 py-4 sm:px-10">
+          {navigationItems.map((item) => {
+            const active = isActivePath(pathname, item.href);
+
+            return (
+              <Link
+                key={item.label}
+                href={item.href}
+                onClick={() => setMenuOpen(false)}
+                aria-current={active ? "page" : undefined}
+                className={cn(
+                  "focus-ring flex items-center justify-between rounded-xl px-4 py-3 font-[family-name:var(--font-garamond)] text-xl transition-colors duration-200",
+                  active
+                    ? "bg-panel font-semibold text-primary"
+                    : "text-foreground hover:bg-panel/70 hover:text-primary"
+                )}
+              >
+                {item.label}
+                <span aria-hidden="true" className="text-muted">
+                  →
+                </span>
+              </Link>
+            );
+          })}
+        </nav>
       </div>
     </header>
   );
-}
+};

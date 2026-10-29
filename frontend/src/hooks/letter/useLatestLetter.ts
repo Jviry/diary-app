@@ -11,6 +11,8 @@ export function useLatestLetter() {
 
   useEffect(() => {
     async function fetchLetter() {
+      setLoading(true);
+      setError(null);
       try {
         const result = await letterService.getLatestReceived();
         setLetter(result);
