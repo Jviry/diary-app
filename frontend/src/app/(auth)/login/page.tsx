@@ -5,38 +5,26 @@ import { LoginForm } from '@/components/auth/LoginForm';
 import { Footer } from '@/components/layout/Footer';
 import Link from 'next/link';
 
-
 export default function LoginPage() {
-
   return (
-    <div className="flex min-h-screen flex-col items-start relative bg-[linear-gradient(0deg,rgba(251,250,238,1)_0%,rgba(251,250,238,1)_100%),linear-gradient(0deg,rgba(255,255,255,1)_0%,rgba(255,255,255,1)_100%)]">
+    <div className="flex min-h-dvh flex-col bg-background">
       <AuthHeader />
-      <main className="flex flex-1 items-center justify-center pt-8 pb-16 px-5 relative self-stretch w-full z-[1]">
-        <div className="flex flex-col max-w-[440px] w-[440px] items-start gap-4 relative">
+      <main className="relative flex flex-1 items-center justify-center px-5 py-10 sm:py-16">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(224,191,191,0.22),transparent_55%)]"
+        />
+        <div className="relative flex w-full max-w-[440px] flex-col items-stretch gap-5">
           <LoginForm />
-          <div className="flex items-center justify-center gap-2 w-full relative self-stretch flex-[0_0_auto]">
-            <p className="relative flex items-center justify-center w-fit mt-[-1.00px] font-[family-name:var(--font-garamond)] font-normal text-[#584141] text-[17px] text-center tracking-[0] leading-[25.5px] whitespace-nowrap">
-              Haven&apos;t made an account yet?
-            </p>
-            <div className="relative w-[39.97px] h-[25.5px]">
-              <Link
-                href="/register"
-                className="absolute top-0 left-[calc(50.00%_-_23px)] h-[26px] flex items-center justify-center font-[family-name:var(--font-garamond)] font-medium text-[#584141] text-[17px] text-center tracking-[0] leading-[25.5px] underline whitespace-nowrap"
-              >
-                Register
-              </Link>
-            </div>
-          </div>
-          <div className="flex items-start justify-center relative self-stretch w-full flex-[0_0_auto] opacity-30">
-            <div className="inline-flex flex-col items-start relative self-stretch flex-[0_0_auto]">
-              <img
-                className="relative w-[23.05px] h-[26.67px]"
-                alt=""
-                aria-hidden="true"
-                src="/icons/icon.svg"
-              />
-            </div>
-          </div>
+          <p className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-center font-[family-name:var(--font-garamond)] text-[17px] text-foreground">
+            Haven&apos;t made an account yet?
+            <Link
+              href="/register"
+              className="focus-ring rounded-sm font-medium text-primary underline decoration-line underline-offset-4 transition-colors duration-200 hover:text-primary-deep"
+            >
+              Register
+            </Link>
+          </p>
         </div>
       </main>
       <Footer />

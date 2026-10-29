@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { Letter } from "@/types/letter.types";
 
 type LetterPreviewProps = {
@@ -6,47 +7,51 @@ type LetterPreviewProps = {
 
 export const LetterPreview = ({ letter }: LetterPreviewProps) => {
   return (
-    <div className="flex flex-col max-w-md w-[448px] items-center justify-center px-10 py-[81.5px] relative bg-white rounded-sm border border-solid border-[#e0bfbf33] aspect-[1.33]">
-      <div className="flex-col h-24 items-start pt-8 pb-0 px-0 z-[4] flex w-16 relative">
-        <div className="h-16 items-center justify-center bg-[#800020] rounded-xl border-2 border-solid border-[#570013] shadow-[0px_4px_12px_#5700134c,inset_0px_2px_4px_2px_#00000033] flex w-16 relative">
-          <div className="inline-flex flex-col items-start relative flex-[0_0_auto]">
-            <img
-              className="relative w-[22.5px] h-[24.31px]"
-              alt=""
-              aria-hidden="true"
-              src="/icons/seal.svg"
-            />
-          </div>
-        </div>
+    <div className="relative flex aspect-[4/3] w-full max-w-md flex-col items-center justify-end overflow-hidden rounded-sm border border-line/30 bg-paper px-5 pb-3 shadow-sm sm:px-10 sm:pb-7">
+      <div className="absolute inset-px z-[1] overflow-hidden rounded-sm">
+        <img
+          className="h-full w-full object-cover"
+          alt=""
+          aria-hidden="true"
+          src="/images/desk-surface.png"
+        />
       </div>
+
       <img
-        className="absolute w-[calc(100%_-_1px)] h-[50%] top-0 left-px z-[3] object-cover"
+        className="absolute left-0 top-0 z-[3] h-1/2 w-full object-cover"
         alt=""
         aria-hidden="true"
         src="/images/envelope-flap.png"
       />
-      <div className="pt-6 pb-0 px-0 mt-[-5.68e-14px] z-[2] inline-flex flex-col items-start relative flex-[0_0_auto]">
-        <div className="inline-flex flex-col items-start gap-2 relative flex-[0_0_auto]">
-          <div className="flex flex-col items-center relative self-stretch w-full flex-[0_0_auto]">
-            <div className="relative flex items-center justify-center w-fit mt-[-1.00px] font-[family-name:var(--font-garamond)] font-normal italic text-[#570013] text-xl text-center tracking-[0] leading-8 whitespace-nowrap">
-              From {letter.fromUser.name}
-            </div>
-          </div>
-          <div className="flex flex-col items-center relative self-stretch w-full flex-[0_0_auto]">
-            <div className="relative flex items-center justify-center w-fit mt-[-1.00px] font-[family-name:var(--font-inter)] font-normal text-[#584141] text-[11px] text-center tracking-[0.88px] leading-[11px] whitespace-nowrap">
-              {letter.title}
-            </div>
-          </div>
+
+      <Link
+        href={`/letters/${letter.id}`}
+        aria-label={`Open latest letter: ${letter.title}`}
+        className="focus-ring group absolute left-1/2 top-1/2 z-[4] -translate-x-1/2 -translate-y-1/2 rounded-xl transition-transform duration-200 hover:scale-105 active:scale-95"
+      >
+        <div className="flex h-14 w-14 items-center justify-center rounded-xl border-2 border-primary bg-primary-deep shadow-[0px_4px_12px_#5700134c,inset_0px_2px_4px_2px_#00000033] transition-shadow duration-200 group-hover:shadow-[0px_8px_20px_#57001366,inset_0px_2px_4px_2px_#00000033] sm:h-16 sm:w-16">
+          <img
+            className="h-5 w-5 transition-transform duration-300 group-hover:-rotate-6 sm:h-[24.31px] sm:w-[22.5px]"
+            alt=""
+            aria-hidden="true"
+            src="/icons/seal.svg"
+          />
         </div>
+      </Link>
+
+      <div className="relative z-[2] flex w-full flex-col items-center gap-1.5 text-center sm:gap-2">
+        <p className="line-clamp-1 font-[family-name:var(--font-garamond)] text-base font-normal italic leading-snug text-primary sm:line-clamp-2 sm:text-xl">
+          From {letter.fromUser.name}
+        </p>
+        <p className="line-clamp-1 font-[family-name:var(--font-inter)] text-[11px] font-normal leading-relaxed tracking-[0.88px] text-foreground sm:line-clamp-2">
+          {letter.title}
+        </p>
       </div>
-      <div className="flex flex-col w-[calc(100%_-_2px)] h-[calc(100%_-_2px)] items-start justify-center absolute top-px left-px z-[1] rounded-sm overflow-hidden">
-        <img
-          className="relative flex-1 self-stretch w-full grow"
-          alt="Letter artwork"
-          src="/images/desk-surface.png"
-        />
-      </div>
-      <div className="absolute w-full h-full top-0 left-0 z-0 bg-[#ffffff01] rounded-sm shadow-[0px_8px_10px_-6px_#0000001a,0px_20px_25px_-5px_#0000001a]" />
+
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 z-0 rounded-sm bg-[#ffffff01] shadow-[0px_8px_10px_-6px_#0000001a,0px_20px_25px_-5px_#0000001a]"
+      />
     </div>
   );
-}
+};

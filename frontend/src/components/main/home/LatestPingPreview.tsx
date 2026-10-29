@@ -8,22 +8,22 @@ export const LatestPingPreview = () => {
   const { ping: latestPing, loading } = useLatestPing();
 
   return (
-    <div className="flex flex-col items-start gap-4 relative self-stretch w-full flex-[0_0_auto]">
-      <div className="px-2 py-0 flex flex-col items-start relative self-stretch w-full flex-[0_0_auto]">
+    <div className="flex w-full animate-fade-up flex-col items-start gap-4 [animation-delay:80ms]">
+      <div className="px-1">
         <h2
           id="thinking-of-you-heading"
-          className="relative flex items-center self-stretch mt-[-1.00px] font-[family-name:var(--font-inter)] font-normal text-[#8c7071] text-[11px] tracking-[1.10px] leading-[11px]"
+          className="font-[family-name:var(--font-inter)] text-[11px] font-normal tracking-[1.10px] text-muted"
         >
           THINKING OF YOU
         </h2>
       </div>
-      <article className="flex flex-col items-start p-4 relative self-stretch w-full flex-[0_0_auto] bg-[#efeee3] rounded-lg border-l-4 [border-left-style:solid] border-[#570013] shadow-[0px_1px_2px_#0000000d]">
+      <article className="flex w-full flex-col items-start rounded-xl border-l-4 border-primary bg-panel-deep p-4 shadow-[0px_1px_2px_#0000000d] sm:p-5">
         {loading ? (
-          <div className="flex flex-col gap-3 w-full animate-pulse">
-            <div className="h-4 w-1/3 bg-[#d8d7cc] rounded" />
-            <div className="h-3 w-full bg-[#d8d7cc] rounded" />
-            <div className="h-3 w-4/5 bg-[#d8d7cc] rounded" />
-            <div className="h-3 w-2/3 bg-[#d8d7cc] rounded" />
+          <div className="flex w-full animate-pulse flex-col gap-3">
+            <div className="h-4 w-1/3 rounded bg-[#d8d7cc]" />
+            <div className="h-3 w-full rounded bg-[#d8d7cc]" />
+            <div className="h-3 w-4/5 rounded bg-[#d8d7cc]" />
+            <div className="h-3 w-2/3 rounded bg-[#d8d7cc]" />
           </div>
         ) : latestPing ? (
           <PingPreview ping={latestPing} />
@@ -33,4 +33,4 @@ export const LatestPingPreview = () => {
       </article>
     </div>
   );
-}
+};

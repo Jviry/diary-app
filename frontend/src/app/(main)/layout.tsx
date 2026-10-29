@@ -3,6 +3,7 @@
 import { useAuth } from '@/context/auth.context';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
+import { PageLoader } from '@/components/ui/PageLoader';
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isHydrated } = useAuth();
@@ -15,7 +16,19 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
   }, [isHydrated, isAuthenticated, router]);
 
   if (!isHydrated) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex min-h-dvh items-center justify-center bg-background">
+        <PageLoader label="Opening your diary..." />
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div className="flex min-h-dvh items-center justify-center bg-background">
+        <PageLoader label="Returning you to the beginning..." />
+      </div>
+    );
   }
 
   return <>{children}</>;

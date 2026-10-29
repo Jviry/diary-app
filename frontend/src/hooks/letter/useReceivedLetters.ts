@@ -17,6 +17,7 @@ export function useReceivedLetters(page: number, unreadOnly: boolean) {
 
     async function fetchLetters() {
       setLoading(true);
+      setError(null);
       try {
         const result = await letterService.getReceived(page, LETTERS_PER_PAGE, unreadOnly);
         if (cancelled) return;

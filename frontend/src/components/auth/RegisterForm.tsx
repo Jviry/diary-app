@@ -1,132 +1,129 @@
+'use client';
 
+import { useState } from "react";
 import { useAuth } from "@/context/auth.context";
 import { authService } from "@/services/auth.service";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { PasswordField } from "@/components/ui/PasswordField";
+import { Spinner } from "@/components/ui/Spinner";
+import { getErrorMessage } from "@/lib/errors";
 
 export const RegisterForm = () => {
-
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { login: saveAuthSession } = useAuth();
-  const [showSecretKey, setShowSecretKey] = useState(false);
   const router = useRouter();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setError(null);
+    setIsSubmitting(true);
+
     try {
       const response = await authService.register({ email, name, password });
-
       saveAuthSession(response.user, response.token);
-
       router.push('/home');
-    } catch (error) {
-      console.error('Register failed', error);
+    } catch (err) {
+      setError(getErrorMessage(err, 'We could not start your story. Please try again.'));
+      setIsSubmitting(false);
     }
-  }
+  };
+
   return (
     <form
       onSubmit={handleSubmit}
-      className="flex flex-col items-start gap-[39px] p-10 relative self-stretch flex-[0_0_auto] bg-white border border-solid border-[#e0bfbf33] w-full rounded-lg"
+      className="animate-fade-up flex w-full flex-col gap-6 rounded-2xl border border-line/30 bg-paper p-6 shadow-[0_18px_50px_-28px_rgba(107,94,81,0.45)] sm:p-10"
     >
-      <div className="gap-10 flex flex-col items-start relative self-stretch w-full">
-        {/* Name */}
-        <div className="flex flex-col gap-1 w-full">
-          <label className="font-[family-name:var(--font-inter)] font-medium text-[#584141] text-[13px] tracking-[0.65px] leading-[13px]">
+      <div className="flex flex-col gap-5">
+        <div className="flex w-full flex-col gap-1.5">
+          <label
+            htmlFor="register-name"
+            className="font-[family-name:var(--font-inter)] text-[13px] font-medium leading-[13px] tracking-[0.65px] text-foreground"
+          >
             NAME
           </label>
-          <div className="flex items-start justify-center pt-[13px] pb-[14.5px] px-3 bg-white border-b border-gray-500">
+          <div className="border-b border-line/80 transition-colors duration-200 focus-within:border-primary">
             <input
-              className="grow border-none bg-transparent font-[family-name:var(--font-garamond)] font-normal text-[#584141] placeholder:text-[#e0bfbf99] text-[17px] p-0"
+              id="register-name"
               name="name"
               autoComplete="name"
               placeholder="Your name or nickname"
               type="text"
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(event) => setName(event.target.value)}
+              required
+              aria-required="true"
+              className="w-full border-none bg-transparent py-3 pl-3 pr-3 font-[family-name:var(--font-garamond)] text-[17px] text-foreground outline-none placeholder:text-line/70"
             />
           </div>
         </div>
 
-        {/* Email */}
-        <div className="flex flex-col gap-1 w-full">
-          <label className="font-[family-name:var(--font-inter)] font-medium text-[#584141] text-[13px] tracking-[0.65px] leading-[13px]">
+        <div className="flex w-full flex-col gap-1.5">
+          <label
+            htmlFor="register-email"
+            className="font-[family-name:var(--font-inter)] text-[13px] font-medium leading-[13px] tracking-[0.65px] text-foreground"
+          >
             EMAIL ADDRESS
           </label>
-          <div className="flex items-start justify-center pt-[13px] pb-[14.5px] px-3 bg-white border-b border-gray-500">
+          <div className="border-b border-line/80 transition-colors duration-200 focus-within:border-primary">
             <input
-              className="grow border-none bg-transparent font-[family-name:var(--font-garamond)] font-normal text-[#584141] placeholder:text-[#e0bfbf99] text-[17px] p-0"
+              id="register-email"
               name="email"
               autoComplete="email"
               placeholder="you@example.com"
               type="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(event) => setEmail(event.target.value)}
+              required
+              aria-required="true"
+              className="w-full border-none bg-transparent py-3 pl-3 pr-3 font-[family-name:var(--font-garamond)] text-[17px] text-foreground outline-none placeholder:text-line/70"
             />
           </div>
         </div>
 
-        {/* Password */}
-        <div className="flex flex-col gap-1 w-full relative pb-4">
-          <label className="font-[family-name:var(--font-inter)] font-medium text-[#584141] text-[13px] tracking-[0.65px] leading-[13px]">
-            PASSWORD
-          </label>
-          <div className="flex items-start justify-center pt-[13px] pb-[14.5px] px-3 bg-white border-b border-gray-500">
-            <input
-              className="grow border-none bg-transparent pr-8 font-[family-name:var(--font-garamond)] font-normal text-[#584141] placeholder:text-[#e0bfbf99] text-[17px] p-0"
-              name="password"
-              autoComplete="new-password"
-              placeholder="••••••••"
-              type={showSecretKey ? 'text' : 'password'}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </div>
-          <button
-            type="button"
-            aria-label={showSecretKey ? 'Hide secret key' : 'Show secret key'}
-            aria-pressed={showSecretKey}
-            onClick={() => setShowSecretKey((current) => !current)}
-            className="absolute right-0 bottom-7 cursor-pointer"
-          >
-            <img
-              className="w-[17.44px] h-[15.57px]"
-              alt=""
-              src="/icons/show-password.svg"
-              aria-hidden="true"
-            />
-          </button>
-        </div>
+        <PasswordField
+          id="register-password"
+          name="password"
+          label="PASSWORD"
+          autoComplete="new-password"
+          value={password}
+          onChange={setPassword}
+        />
 
-        {/* Divider */}
         <img
-          className="relative self-stretch w-full h-10 object-cover"
+          className="h-10 w-full object-contain opacity-70"
           alt=""
           src="/icons/decor-divider.svg"
           aria-hidden="true"
         />
 
-        {/* Submit */}
+        {error && (
+          <p
+            role="alert"
+            className="animate-fade-in rounded-lg bg-blush/70 px-4 py-3 font-[family-name:var(--font-inter)] text-[13px] leading-relaxed text-primary"
+          >
+            {error}
+          </p>
+        )}
+
         <button
           type="submit"
-          className="flex items-center justify-center gap-2 p-4 relative self-stretch w-full bg-[#570013] rounded-xl cursor-pointer"
+          disabled={isSubmitting}
+          className="focus-ring motion-press group flex w-full items-center justify-center gap-2 rounded-xl bg-primary p-4 shadow-[0_4px_6px_-4px_#57001333,0_10px_15px_-3px_#57001333] transition-all duration-200 hover:bg-primary-deep hover:shadow-[0_12px_24px_-12px_#57001380] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0"
         >
-          <div
-            aria-hidden="true"
-            className="absolute w-full h-full top-0 left-0 bg-[#ffffff01] rounded-xl shadow-[0px_4px_6px_-4px_#57001333,0px_10px_15px_-3px_#57001333]"
-          />
-          <span className="font-[family-name:var(--font-inter)] font-medium text-white text-[13px] text-center tracking-[2.60px] leading-[13px]">
-            BEGIN YOUR JOURNEY
+          {isSubmitting && <Spinner />}
+          <span className="font-[family-name:var(--font-inter)] text-[13px] font-medium tracking-[2.6px] text-white">
+            {isSubmitting ? "BEGINNING..." : "BEGIN YOUR JOURNEY"}
           </span>
         </button>
       </div>
 
-      <p className="font-[family-name:var(--font-inter)] font-semibold text-[#584141b2] text-[11px] text-center tracking-[0.88px] leading-[17.9px] w-full">
-        By beginning, you agree to cherish the digital heirlooms
-        <br />
-        created here.
+      <p className="w-full font-[family-name:var(--font-inter)] text-[11px] font-semibold leading-relaxed tracking-[0.88px] text-foreground/70">
+        By beginning, you agree to cherish the digital heirlooms created here.
       </p>
     </form>
   );
-}
+};

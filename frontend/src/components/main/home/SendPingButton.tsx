@@ -1,33 +1,29 @@
+import Link from "next/link";
 
 export const SendPingButton = () => {
   return (
-    <button
-      type="button"
+    <Link
+      href="/pings"
       aria-label="Send a Ping"
-      className="gap-4 pl-4 pr-[81.1px] py-4 bg-white rounded-lg border border-solid border-[#e0bfbf] shadow-[0px_1px_2px_#0000000d] inline-flex items-center relative flex-[0_0_auto] cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#570013]"
+      className="focus-ring motion-press group flex w-full items-center gap-4 rounded-xl border border-line bg-paper p-4 text-left shadow-[0px_1px_2px_#0000000d] transition-all duration-200 hover:border-primary/40 hover:shadow-[0_18px_35px_-24px_#57001366]"
     >
-      <div className="w-12 h-12 justify-center relative bg-[#fbdbdb] rounded-xl flex items-center">
-        <div className="inline-flex flex-col items-center relative flex-[0_0_auto]">
-          <img
-            className="relative w-[18.77px] h-[19.19px]"
-            alt=""
-            aria-hidden="true"
-            src="/icons/ping.svg"
-          />
-        </div>
-      </div>
-      <div className="inline-flex flex-col items-start gap-1 relative flex-[0_0_auto]">
-        <div className="flex flex-col items-start relative self-stretch w-full flex-[0_0_auto]">
-          <div className="relative flex items-center w-fit mt-[-1.00px] font-[family-name:var(--font-playfair)] font-semibold text-[#570013] text-2xl tracking-[0] leading-6 whitespace-nowrap">
-            Send a Ping
-          </div>
-        </div>
-        <div className="flex flex-col items-start relative self-stretch w-full flex-[0_0_auto]">
-          <p className="relative flex items-center w-fit mt-[-1.00px] font-[family-name:var(--font-inter)] font-normal text-[#584141] text-[11px] tracking-[0.88px] leading-[11px] whitespace-nowrap">
-            A digital tap on the shoulder.
-          </p>
-        </div>
-      </div>
-    </button>
+      <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-blush transition-transform duration-300 group-hover:rotate-6 group-hover:scale-105">
+        <img className="h-[19.19px] w-[18.77px]" alt="" aria-hidden="true" src="/icons/ping.svg" />
+      </span>
+      <span className="flex min-w-0 flex-1 flex-col items-start gap-1">
+        <span className="font-[family-name:var(--font-playfair)] text-xl font-semibold leading-6 text-primary sm:text-2xl">
+          Send a Ping
+        </span>
+        <span className="font-[family-name:var(--font-inter)] text-[11px] leading-[11px] tracking-[0.88px] text-foreground">
+          A digital tap on the shoulder.
+        </span>
+      </span>
+      <span
+        aria-hidden="true"
+        className="text-lg text-primary/50 transition-transform duration-200 group-hover:translate-x-1"
+      >
+        →
+      </span>
+    </Link>
   );
-}
+};

@@ -17,6 +17,7 @@ export function useCreateLetter() {
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to send letter';
       setError(message);
+      throw error;
     } finally {
       setLoading(false);
     }

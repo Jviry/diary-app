@@ -11,6 +11,8 @@ export function useGetLetterById(id: string) {
 
   useEffect(() => {
     async function fetchLetter() {
+      setLoading(true);
+      setError(null);
       try {
         const result = await letterService.getById(id);
         setLetter(result);
