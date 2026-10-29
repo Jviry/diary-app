@@ -3,6 +3,7 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import type { User } from '@/types/auth.types';
 import { userService } from '@/services/user.service';
+import { getApiErrorStatus } from '@/lib/errors';
 
 interface AuthContextType {
   user: User | null
@@ -27,27 +28,56 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   useEffect(() => {
+    let cancelled = false;
+
     const initializeAuth = async () => {
       const storedToken = localStorage.getItem('token');
       const storedUser = localStorage.getItem('user');
 
-      if (storedToken && storedUser) {
-        const parsedUser = JSON.parse(storedUser);
-        setAuth({ token: storedToken, user: parsedUser });
-
-        try {
-          const freshUser = await userService.getCurrentUser();
-          setAuth({ token: storedToken, user: freshUser });
-          localStorage.setItem('user', JSON.stringify(freshUser));
-        } catch (error) {
-          console.error('Session verification failed, logging out:', error);
-          logout();
+      if (!storedToken || !storedUser) {
+        if (storedToken || storedUser) {
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
         }
+        if (!cancelled) setIsHydrated(true);
+        return;
       }
-      setIsHydrated(true);
+
+      let parsedUser: User;
+      try {
+        parsedUser = JSON.parse(storedUser) as User;
+      } catch (error) {
+        console.error('Stored session is corrupted, clearing it:', error);
+        logout();
+        if (!cancelled) setIsHydrated(true);
+        return;
+      }
+
+      setAuth({ token: storedToken, user: parsedUser });
+
+      try {
+        const freshUser = await userService.getCurrentUser();
+        if (cancelled) return;
+
+        setAuth({ token: storedToken, user: freshUser });
+        localStorage.setItem('user', JSON.stringify(freshUser));
+      } catch (error) {
+        if (getApiErrorStatus(error) === 401) {
+          console.error('Session expired, logging out:', error);
+          logout();
+        } else {
+          console.warn('Session verification unavailable; using cached user.', error);
+        }
+      } finally {
+        if (!cancelled) setIsHydrated(true);
+      }
     };
 
     initializeAuth();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const login = (user: User, token: string) => {

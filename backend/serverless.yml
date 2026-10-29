@@ -51,6 +51,16 @@ functions:
           path: /auth/{proxy+}
           method: ANY
 
+  users:
+    handler: src/handlers/users.handler
+    events:
+      - httpApi:
+          path: /users
+          method: ANY
+      - httpApi:
+          path: /users/{proxy+}
+          method: ANY
+
   letters:
     handler: src/handlers/letters.handler
     events:

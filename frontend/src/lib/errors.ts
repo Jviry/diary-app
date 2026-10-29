@@ -1,10 +1,15 @@
 type ApiErrorPayload = {
   response?: {
+    status?: number;
     data?: {
       message?: string;
       error?: string;
     };
   };
+};
+
+export const getApiErrorStatus = (error: unknown) => {
+  return (error as ApiErrorPayload)?.response?.status;
 };
 
 export const getErrorMessage = (error: unknown, fallback: string) => {
